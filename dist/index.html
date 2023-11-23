@@ -1,0 +1,64 @@
+<!DOCTYPE html><html><head>
+<style>
+@font-face {
+  font-family: 'Bahn';
+  src:url("/Bahn.ttf");
+
+}
+div {
+  width: 50%;
+  height: 50%;
+  float: left;
+  color: #cccccc;
+  text-align: center;
+  font-family: 'Bahn', monospace;
+  overflow: hidden;
+  white-space: nowrap; /* Don't forget this one */
+text-overflow: ellipsis;
+
+}
+html, body {
+    cursor:none;
+    background-color: #000000;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+.center{
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;;
+}
+h1{
+    font-size: 2.8vw;
+    margin: 0;
+}
+tr{
+    font-size: 2.2vw;
+    color: #00cc00;
+}
+th{
+    max-width: fit-content;
+}
+td{
+     height: 50px;
+  vertical-align: bottom;
+}
+
+table{
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+.hidden{
+    display: none;
+}
+
+</style>
+
+  
+<link rel="preload" href="/fscs_monitor-3143cf4345403e13_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/fscs_monitor-3143cf4345403e13.js"></head>
+  <body>
+
+<script type="module">import init from '/fscs_monitor-3143cf4345403e13.js';init('/fscs_monitor-3143cf4345403e13_bg.wasm');</script></body></html>
