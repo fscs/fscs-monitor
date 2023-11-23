@@ -1,11 +1,30 @@
 use std::time::Duration;
-
-use wasm_bindgen::prelude::*;
 use leptos::{*, leptos_dom::logging::console_log};
 use serde_json::Value;
-use wasm_bindgen::{JsValue, JsCast};
+use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
-use web_sys::{RequestInit, RequestMode, RequestCache, Request, Response};
+use web_sys::{RequestInit, RequestMode, Request, Response, RequestCache};
+
+
+#[component]
+pub fn App() -> impl IntoView {
+    view! {
+        <div>
+            <Station id="20018296".to_string()/>
+        </div>
+        <div>
+            <Station id="20018804".to_string()/>
+        </div>
+        <div>
+            <Station id="20018269".to_string()/>
+        </div>
+        <div>
+            <Station id="20018249".to_string()/>
+        </div>
+
+    }
+}
+
 
 
 #[component]
@@ -45,9 +64,9 @@ fn Station(id:String) -> impl IntoView {
 
 
     return view! {
-        <div class="center">
+        <div class="center" style="height:100%;  ">
             <h1>{name}</h1>
-            <table class="center">
+            <table class="center" style="padding-left:30px; padding-right:30px;">
             {move || state.get().iter().map(move |x| {
                                                          if x[0].is_empty() {
                                                              return view! {
@@ -58,7 +77,7 @@ fn Station(id:String) -> impl IntoView {
                                                              return view! {
                                                                  <tr>
                                                                      <th>{x[0].clone()}</th>
-                                                                     <th style="text-align:left">{x[1].clone()}</th>
+                                                                     <th style="text-align:left; line-height:1;">{x[1].clone()}</th>
                                                                      <th>{x[2].clone()}</th>
 
                                                                      </tr>
@@ -71,6 +90,9 @@ fn Station(id:String) -> impl IntoView {
     }
 }
 
+
+
+
 #[wasm_bindgen]
 pub async fn get_departures(id:String) -> Result<JsValue, JsValue> {
     let mut opts = RequestInit::new();
@@ -79,7 +101,10 @@ pub async fn get_departures(id:String) -> Result<JsValue, JsValue> {
     opts.cache(RequestCache::NoStore);
     opts.mode(RequestMode::Cors);
     console_log(&id);
-    let url = format!("https://app.vrr.de/vrrstd/XML_DM_REQUEST?outputFormat=JSON&commonMacro=dm&type_dm=any&name_dm={}&language=de&realtime=1&lsShowTrainsExplicit=1&mode=direct&typeInfo_dm=stopID", id); 
+    let mut url = format!("https://app.vrr.de/vrrstd/XML_DM_REQUEST?outputFormat=JSON&commonMacro=dm&type_dm=any&name_dm={}&language=de&realtime=1&lsShowTrainsExplicit=1&mode=direct&typeInfo_dm=stopID", id); 
+    if id=="20018249" {
+       url = format!("https://app.vrr.de/vrrstd/XML_DM_REQUEST?outputFormat=JSON&commonMacro=dm&type_dm=any&name_dm={}&language=de&realtime=1&lsShowTrainsExplicit=1&mode=direct&typeInfo_dm=stopID&limit=100", id); 
+    }
     let request = Request::new_with_str_and_init(&url, &opts)?;
     console_log(&request.method());
     console_log(&url);
@@ -112,7 +137,7 @@ pub async fn list(id:String) -> Result<String, JsValue> {
 
     console_log(&json["departureList"].to_string().matches("servingLine").count().to_string());
 
-    while (vec.len() < 10) && (i < json["departureList"].to_string().matches("servingLine").count()) {
+    while (vec.len() <9) && (i < json["departureList"].to_string().matches("servingLine").count()) {
         let line = json["departureList"][i]["servingLine"]["number"].to_string().replace("\"", "");
         let direction = json["departureList"][i]["servingLine"]["direction"].to_string().replace("\"", "");
 
@@ -159,7 +184,7 @@ pub async fn list(id:String) -> Result<String, JsValue> {
         if _times.parse::<i32>().unwrap() >= 5 {
             if id.clone() == "20018249" {
                 console_log(&train_type);
-                if (train_type == "S-Bahn") || (train_type == "Regionalzug") {
+                if ((train_type == "S-Bahn") || (train_type == "Regionalzug"))&&(_times.parse::<i32>().unwrap() > 15) {
                     vec.push(string);
                 }
             }else{ 
