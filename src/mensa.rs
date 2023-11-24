@@ -1,4 +1,3 @@
-
 use std::time::Duration;
 use leptos::{*, leptos_dom::logging::console_log};
 use wasm_bindgen::prelude::*;
@@ -7,7 +6,7 @@ use web_sys::{RequestInit, RequestMode, Request, Response, RequestCache};
 #[component]
 pub fn App2() -> impl IntoView {
     view! {
-            <Essen id="348".to_string()/> 
+        <Essen id="348".to_string()/> 
     }
 }
 
@@ -27,54 +26,52 @@ fn Essen(id:String) -> impl IntoView {
         move || {
             let id = id.clone();
             spawn_local(async move {
-                let list = get_menu(id.clone());
+                let list = get_menu(id);
                 let list = list.await.unwrap().as_string().unwrap();
                 set_state.set(list.split("\n").map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>()).collect::<Vec<_>>());
             });
         }, Duration::from_secs(60*60*30),
-        );
+    );
 
    
     view! {
-        <table class="center" style="table-layout:fixed; height:100%; padding: 15pt; background-image:url('https://static.planetminecraft.com/files/image/minecraft/texture-pack/2020/428/13530476-cover_l.jpg'); background-size:contain">
+        <table class="center" id="mensa" >
             <tr> 
             {move || state.get().iter().map(move |x| {
-                                                         if x[0].is_empty() {
-                                                             return view! {
-                                                                 <td class="hidden">
-                                                                     </td>
-                                                             };
-                                                         }else{
-                                                             let style = format!("background-image: url({}); background-size: 110%; background-repeat: no-repeat; background-position: center; height: 100%; width: 100%; padding:0px", x[2].clone());
-                                                             if x[3].clone() == "true" {
-                                                                 return view! {
-                                                                 <td style=style>
-                                                                     <div style="width:100%; height:auto; background:#3d3d3d; color:white;">
-                                                                        <div style="width:90%; background-color:#000000; color:#ffffff; margin:0px;overflow:hidden; text-overflow:ellipsis; height:fit-content;padding-top:10px;padding-bottom:10px;">
-                                                                        {x[1].clone()} </div>
-                                                                        <div style="width:10%;padding-top:10px;padding-bottom:10px;color:white;">
-                                                                        "V"
-                                                                        </div>
-                                                                    </div>
-                                                                     </td>
-                                                             }
-                                                             }
-                                                             return view! {
-                                                                 <td style=style> 
-                                                                     <p style="background-color:#000000; color:#ffffff; margin:0px; width:100%;overflow:hidden; text-overflow:ellipsis;padding-top:10px;padding-bottom:10px;">
-
-                                                                        {x[1].clone()}</p>
-                                                                     </td>
-                                                             }
-                                                         }
-                                                     }).collect::<Vec<_>>()
+                 if x[0].is_empty() {
+                     return view! {
+                         <td class="hidden">
+                         </td>
+                     };
+                 }else{
+                     let style = format!("background-image: url({}); background-size: 110%; background-repeat: no-repeat; background-position: center; height: 100%; width: 100%; padding:0px", x[2].clone());
+                         if x[3].clone() == "true" {
+                             return view! {
+                                 <td style=style>
+                                     <div style="width:100%; height:auto; background:#3d3d3d; color:white;">
+                                        <div style="width:90%; background-color:#000000; color:#ffffff; margin:0px;overflow:hidden; text-overflow:ellipsis; height:fit-content;padding-top:10px;padding-bottom:10px;">
+                                            {x[1].clone()} </div>
+                                        <div style="width:10%;padding-top:10px;padding-bottom:10px;color:white;">
+                                            "V"
+                                        </div>
+                                    </div>
+                                 </td>
+                             }
+                         }
+                         return view! {
+                             <td style=style> 
+                                 <p style="background-color:#000000; color:#ffffff; margin:0px; width:100%;overflow:hidden; text-overflow:ellipsis;padding-top:10px;padding-bottom:10px;">
+                                    {x[1].clone()}
+                                 </p>
+                             </td>
+                         }
+                     }
+                 }).collect::<Vec<_>>()
             } 
-        </tr>
+            </tr>
         </table>
     }
 }
-
-
 
 #[wasm_bindgen]
 pub async fn get_food_pic(id:String) -> Result<JsValue, JsValue> {
@@ -83,7 +80,13 @@ pub async fn get_food_pic(id:String) -> Result<JsValue, JsValue> {
     if time > "14:30".to_string() {
         //set day to tomorrow
         today = chrono::Local::now().checked_add_signed(chrono::Duration::days(1)).unwrap().format("%d.%m.%Y").to_string(); 
+        if chrono::Local::now().format("%u").to_string() == "5".to_string() {
+            //set day to tomorrow
+            today = chrono::Local::now().checked_add_signed(chrono::Duration::days(3)).unwrap().format("%d.%m.%Y").to_string(); 
+        }
     }
+
+
     let mut opts = RequestInit::new();
     opts.mode(RequestMode::Cors);
     opts.method("GET");
@@ -130,7 +133,15 @@ pub async fn get_menu(id:String) ->Result<JsValue, JsValue> {
     if time > "14:30".to_string() {
         //set day to tomorrow
         day = chrono::Local::now().checked_add_signed(chrono::Duration::days(1)).unwrap().format("%Y-%m-%d").to_string(); 
+        if chrono::Local::now().format("%u").to_string() == "5".to_string() {
+            //set day to tomorrow
+            day = chrono::Local::now().checked_add_signed(chrono::Duration::days(3)).unwrap().format("%Y-%m-%d").to_string(); 
+        }
     }
+
+
+
+
     let mut opts = RequestInit::new();
     opts.mode(RequestMode::Cors);
     opts.method("GET");

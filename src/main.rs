@@ -2,16 +2,17 @@ use std::time::Duration;
 use leptos::*;
 mod trains;
 mod mensa;
+
 fn main() {
     // create a new app
     leptos::mount_to_body(move || view! { 
         <div style="height:5vh; width:100vw">
             <Notification_Bar/>
         </div>
-        <div style="height:75vh; width:100vw">
+        <div style="height:75vh; width:100vw;">
           <trains::App/>  
         </div>
-        <div style="height:20vh; width:100vw">
+        <div style="height:20vh; width:100vw;">
           <mensa::App2/>
         </div>
     })
@@ -31,7 +32,7 @@ fn Notification_Bar() -> impl IntoView {
     );
 
     view! {
-        <div class="center" style="height:100%">
+        <div class="center" style="height:100%;">
             <h1>{ move || localtime}</h1>
         </div>
     }
