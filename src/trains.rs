@@ -3,7 +3,7 @@ use leptos::{*, leptos_dom::logging::console_log};
 use serde_json::Value;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
-use web_sys::{RequestInit, RequestMode, Request, Response, RequestCache};
+use web_sys::{RequestInit, Request, Response, RequestCache};
 
 
 #[component]
@@ -53,11 +53,16 @@ fn Station(id:String) -> impl IntoView {
                     set_state.set(list.split("\n").map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>()).collect::<Vec<_>>());                });
                 let name = get_station_name(id.clone());
                 let name = name.await.unwrap();
+                
                 set_name.set(name);
+
             });
         },
         Duration::from_secs(60),
     );
+
+
+    
 
     return view! {
         <div class="center" style="height:100%;  ">
@@ -76,7 +81,7 @@ fn Station(id:String) -> impl IntoView {
                              <th style="text-align:left; line-height:1;">{x[1].clone()}</th>
                              <th>{x[2].clone()}</th>
 
-                             </tr>
+                         </tr>
                         }
                      }
              }).collect::<Vec<_>>()
@@ -199,7 +204,7 @@ fn get_traindata(json:Value, id:usize) -> Train {
     _times = diff.to_string();
 
     Train {
-        line: json["departureList"][&id]["servingLine"]["number"].to_string().replace("\"", ""),
+        line: json["departureList"][&id]["servingLine"]["number"].to_string().replace("\"", "").replace(" (RRX)", ""),
         direction: json["departureList"][&id]["servingLine"]["direction"].to_string().replace("\"", ""),
         time: _times,
         train_type: json["departureList"][&id]["servingLine"]["name"].to_string().replace("\"", ""),

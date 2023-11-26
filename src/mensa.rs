@@ -1,5 +1,5 @@
 use std::time::Duration;
-use leptos::{*, leptos_dom::logging::console_log};
+use leptos::*;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{RequestInit, RequestMode, Request, Response, RequestCache};
@@ -77,18 +77,16 @@ fn Essen(id:String) -> impl IntoView {
 pub async fn get_food_pic(id:String) -> Result<JsValue, JsValue> {
     let mut today = chrono::Local::now().format("%d.%m.%Y").to_string();
     let time = chrono::Local::now().format("%H:%M").to_string();
-    if time > "14:30".to_string() {
+    if chrono::Local::now().format("%u").to_string().parse::<i32>().unwrap() >= 5 {
+        //set day to monday
+        let diff_to_next_monday = 8 - chrono::Local::now().format("%u").to_string().parse::<i64>().unwrap();
+        today = chrono::Local::now().checked_add_signed(chrono::Duration::days(diff_to_next_monday)).unwrap().format("%d.%m.%Y").to_string(); 
+    }else if time > "14:30".to_string() {
         //set day to tomorrow
         today = chrono::Local::now().checked_add_signed(chrono::Duration::days(1)).unwrap().format("%d.%m.%Y").to_string(); 
-        if chrono::Local::now().format("%u").to_string() == "5".to_string() {
-            //set day to tomorrow
-            today = chrono::Local::now().checked_add_signed(chrono::Duration::days(3)).unwrap().format("%d.%m.%Y").to_string(); 
-        }
     }
 
-
     let mut opts = RequestInit::new();
-    opts.mode(RequestMode::Cors);
     opts.method("GET");
     opts.cache(RequestCache::NoStore);
     opts.mode(RequestMode::Cors);
@@ -106,16 +104,11 @@ pub async fn get_food_pic(id:String) -> Result<JsValue, JsValue> {
     let day = format!("data-date='{}'>", today);
     let day_info = text.split(&day);
 
-
     let essen = day_info.collect::<Vec<_>>()[1].split("</div>").collect::<Vec<_>>();
-    
-    console_log(&essen[0]);
 
     for i in 0..essen.len() {
         if essen[i].contains(&id) {
-            console_log("found");
             let url = essen[i].split("url(").collect::<Vec<_>>()[1].split(")").collect::<Vec<_>>()[0].replace("\"", "");
-            console_log(&url);
             return Ok(JsValue::from_str(&url));
         }
     }
@@ -123,27 +116,19 @@ pub async fn get_food_pic(id:String) -> Result<JsValue, JsValue> {
     Ok(JsValue::from_str(&text))
 }
 
-
-
-
 #[wasm_bindgen]
 pub async fn get_menu(id:String) ->Result<JsValue, JsValue> {
     let mut day = chrono::Local::now().format("%Y-%m-%d").to_string();
     let time = chrono::Local::now().format("%H:%M").to_string();
-    if time > "14:30".to_string() {
+    if chrono::Local::now().format("%u").to_string().parse::<i32>().unwrap() >= 5 {
+        //set day to monday
+        let diff_to_next_monday = 8 - chrono::Local::now().format("%u").to_string().parse::<i64>().unwrap();
+        day = chrono::Local::now().checked_add_signed(chrono::Duration::days(diff_to_next_monday)).unwrap().format("%Y-%m-%d").to_string(); 
+    }else if time > "14:30".to_string() {
         //set day to tomorrow
         day = chrono::Local::now().checked_add_signed(chrono::Duration::days(1)).unwrap().format("%Y-%m-%d").to_string(); 
-        if chrono::Local::now().format("%u").to_string() == "5".to_string() {
-            //set day to tomorrow
-            day = chrono::Local::now().checked_add_signed(chrono::Duration::days(3)).unwrap().format("%Y-%m-%d").to_string(); 
-        }
     }
-
-
-
-
     let mut opts = RequestInit::new();
-    opts.mode(RequestMode::Cors);
     opts.method("GET");
     opts.cache(RequestCache::NoStore);
     opts.mode(RequestMode::Cors);
@@ -165,9 +150,7 @@ pub async fn get_menu(id:String) ->Result<JsValue, JsValue> {
 
         let essen_category = text.split("category\":").collect::<Vec<_>>()[i+1].split(",").collect::<Vec<_>>()[0].replace("\"", "");
         let is_vegan = text.split("notes\":").collect::<Vec<_>>()[i+1].contains("vegan"); 
-
         let pic_url = get_food_pic(essen_category.clone()).await.unwrap().as_string().unwrap();
-
         
         essen = format!("{} {} && {} && {} && {}\n", essen, essen_category, essen_name, pic_url, is_vegan);
 

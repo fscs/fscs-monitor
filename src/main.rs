@@ -4,7 +4,6 @@ mod trains;
 mod mensa;
 
 fn main() {
-    // create a new app
     leptos::mount_to_body(move || view! { 
         <div style="height:5vh; width:100vw">
             <Notification_Bar/>
