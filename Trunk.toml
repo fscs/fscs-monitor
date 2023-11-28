@@ -4,6 +4,6 @@ target = "index.html"
 # Build in release mode.
 release = true
 # The public URL from which assets are to be served.
-public_url = "/"
+public_url = "https://sotgasotga.github.io/fscs-monitor/"
 # Whether to inject scripts (and module preloads) into the finalized output.
 inject_scripts = true
