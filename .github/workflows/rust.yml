@@ -20,6 +20,6 @@ jobs:
     - run: rustup target add wasm32-unknown-unknown
     - name: Build
       uses: jetli/trunk-action@v0.4.0
-    - run: trunk build --release
+    - run: trunk build --release --config Trunk.toml
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v2
