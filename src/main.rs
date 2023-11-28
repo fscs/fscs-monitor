@@ -1,18 +1,27 @@
 use std::time::Duration;
-use leptos::*;
+use leptos::{*};
 mod trains;
 mod mensa;
-
+mod cal;
 fn main() {
+    spawn_local(async move {
+        cal::memes().await;
+    });
     leptos::mount_to_body(move || view! { 
-        <div style="height:5vh; width:100vw">
-            <Notification_Bar/>
+
+        <div style="height:100vh; width:80vw">
+            <div style="height:5vh; width:100%">
+                <Notification_Bar/>
+            </div>
+            <div style="height:75vh; width:100%;">
+              <trains::App/>  
+            </div>
+            <div style="height:20vh; width:100%;">
+              <mensa::App2/>
+            </div>
         </div>
-        <div style="height:75vh; width:100vw;">
-          <trains::App/>  
-        </div>
-        <div style="height:20vh; width:100vw;">
-          <mensa::App2/>
+        <div style="height:100vh; width:20vw">
+            <cal::App/>
         </div>
     })
 

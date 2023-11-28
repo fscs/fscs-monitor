@@ -5,7 +5,6 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{RequestInit, Request, Response, RequestCache};
 
-
 #[component]
 pub fn App() -> impl IntoView {
     view! {
@@ -34,6 +33,7 @@ fn Station(id:String) -> impl IntoView {
     let id2 = id.clone(); 
 
     spawn_local(async move {
+
         let list = list(id2.clone());
         let list = list.await.unwrap();
         list.split("\n").for_each(|_y| {
@@ -61,7 +61,7 @@ fn Station(id:String) -> impl IntoView {
         Duration::from_secs(60),
     );
 
-
+ 
     
 
     return view! {
@@ -75,11 +75,23 @@ fn Station(id:String) -> impl IntoView {
                              </tr>
                      };
                  }else{
+                     if x[1].len() > 24 {
+                         return view! {
+                         <tr>
+                             <th style="width:8vw">{x[0].clone()}</th>
+                             
+                             <th style="max-width:25vw; min-width:25vw; text-align:left; line-height:1;overflow:hidden"><div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[1].clone()+" "}</span><span>{x[1].clone()+" "}</span><span>{x[1].clone()+" "}</span></div></th>
+                             <th style="width:8vw">{x[2].clone()}</th>
+
+                         </tr>
+                        }
+                     }
                      return view! {
                          <tr>
-                             <th>{x[0].clone()}</th>
-                             <th style="text-align:left; line-height:1;">{x[1].clone()}</th>
-                             <th>{x[2].clone()}</th>
+                             <th style="width:8vw">{x[0].clone()}</th>
+                             
+                             <th style="max-width:25vw; min-width:25vw; text-align:left; line-height:1;overflow:hidden"><div style="width:fit-content;">{x[1].clone()}</div></th>
+                             <th style="width:8vw">{x[2].clone()}</th>
 
                          </tr>
                         }
@@ -134,14 +146,16 @@ pub async fn list(id:String) -> Result<String, JsValue> {
 
     let mut i = 1;
     
-    while vec.len() <9 {
+    while vec.len() < 9 {
         
         let train = get_traindata(json.clone(), i);
         
         let string = format!("{} && {} && {}min", train.line, train.direction, train.time);
         
         console_log(&string);
-
+            
+        
+        
         if train.time.parse::<i32>().unwrap() >= 5 {
             if id.clone() == "20018249" {
                 console_log(&train.train_type);
@@ -149,9 +163,12 @@ pub async fn list(id:String) -> Result<String, JsValue> {
                     vec.push(string);
                 }
             }else{ 
-                vec.push(string);
+                if !train.direction.contains("Uni") {
+                    vec.push(string);
+                }
             }
         }
+
         i = i+1;
     }
 

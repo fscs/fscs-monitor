@@ -5,13 +5,44 @@
   src:url("/Bahn.ttf");
 
 }
+
+@-moz-keyframes my-animation {
+  from { -moz-transform: translateX(100%); }
+  to { -moz-transform: translateX(-100%); }
+}
+
+/* for Chrome */
+@-webkit-keyframes my-animation {
+  from { -webkit-transform: translateX(100%); }
+  to { -webkit-transform: translateX(-100%); }
+}
+
+@keyframes my-animation {
+0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-66.6666666%, 0);
+  }
+}
+
+.scroll{
+    -moz-transform: translateX(100%);
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
+  
+  -moz-animation: my-animation 15s linear infinite;
+  -webkit-animation: my-animation 15s linear infinite;
+  animation: my-animation 15s linear infinite;
+}
+
 div {
   width: 50%;
   height: 50%;
   float: left;
   color: #cccccc;
   text-align: center;
-  font-family: 'Bahn', monospace;
+  font-family: 'Bahn';
   overflow: hidden;
   white-space: nowrap; /* Don't forget this one */
 text-overflow: ellipsis;
@@ -30,15 +61,17 @@ html, body {
     width: 100%;;
 }
 h1{
-    font-size: 2.8vw;
+    font-size: 2vw;
     margin: 0;
+    font-weight: normal;
 }
 tr{
-    font-size: 2.2vw;
+    font-size: 1.8vw;
     color: #00cc00;
 }
 th{
     max-width: fit-content;
+    font-weight: normal;
 }
 td{
      height: 50px;
@@ -64,8 +97,8 @@ table#mensa{
 </style>
 
   
-<link rel="preload" href="/fscs_monitor-f8f89c528dc1fe44_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
-<link rel="modulepreload" href="/fscs_monitor-f8f89c528dc1fe44.js"></head>
+<link rel="preload" href="/fscs_monitor-8add34f2c5d8b227_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/fscs_monitor-8add34f2c5d8b227.js"></head>
   <body>
 
-<script type="module">import init from '/fscs_monitor-f8f89c528dc1fe44.js';init('/fscs_monitor-f8f89c528dc1fe44_bg.wasm');</script></body></html>
+<script type="module">import init from '/fscs_monitor-8add34f2c5d8b227.js';init('/fscs_monitor-8add34f2c5d8b227_bg.wasm');</script></body></html>

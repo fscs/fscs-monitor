@@ -49,7 +49,7 @@ fn Essen(id:String) -> impl IntoView {
                              return view! {
                                  <td style=style>
                                      <div style="width:100%; height:auto; background:#3d3d3d; color:white;">
-                                        <div style="width:90%; background-color:#000000; color:#ffffff; margin:0px;overflow:hidden; text-overflow:ellipsis; height:fit-content;padding-top:10px;padding-bottom:10px;">
+                                        <div style="width:calc(90% - 20px); background-color:#000000; color:#ffffff; margin:0px;overflow:hidden; text-overflow:ellipsis; height:fit-content;padding:10px">
                                             {x[1].clone()} </div>
                                         <div style="width:10%;padding-top:10px;padding-bottom:10px;color:white;">
                                             "V"
@@ -60,7 +60,7 @@ fn Essen(id:String) -> impl IntoView {
                          }
                          return view! {
                              <td style=style> 
-                                 <p style="background-color:#000000; color:#ffffff; margin:0px; width:100%;overflow:hidden; text-overflow:ellipsis;padding-top:10px;padding-bottom:10px;">
+                                 <p style="background-color:#000000; color:#ffffff; margin:0px; width:calc(100% - 20px);overflow:hidden; text-overflow:ellipsis;padding:10px;">
                                     {x[1].clone()}
                                  </p>
                              </td>
