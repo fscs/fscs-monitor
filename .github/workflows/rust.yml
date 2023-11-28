@@ -24,4 +24,4 @@ jobs:
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v2
       with:
-        path: $GITHUB_WORKSPACE/dist
+        path: dist
