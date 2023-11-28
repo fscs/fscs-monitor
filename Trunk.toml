@@ -7,3 +7,5 @@ release = true
 dist = "_site"
 # The public URL from which assets are to be served.
 public_url = "https://sotgasotga.github.io/fscs-monitor/"
+# Whether to inject scripts (and module preloads) into the finalized output.
+inject_scripts = true
