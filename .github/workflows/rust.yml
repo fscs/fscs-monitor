@@ -17,5 +17,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: jetli/trunk-action@v0.4.0
+    - name: Build
+      uses: jetli/trunk-action@v0.4.0
+    - run: trunk build --release
     
