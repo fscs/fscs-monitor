@@ -1,0 +1,34 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+          
+      - uses: jetli/trunk-action@v0.1.0
+      - uses: jetli/wasm-bindgen-action@v0.1.0
+
+      - uses: actions/checkout@v2
+
+      - run: cargo install --path .
+
+      - run: trunk build
+
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
