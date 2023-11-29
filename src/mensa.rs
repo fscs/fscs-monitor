@@ -30,7 +30,7 @@ fn Essen(id:String) -> impl IntoView {
                 let list = list.await.unwrap().as_string().unwrap();
                 set_state.set(list.split("\n").map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>()).collect::<Vec<_>>());
             });
-        }, Duration::from_secs(60*60*30),
+        }, Duration::from_secs(60*30),
     );
 
    
