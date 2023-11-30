@@ -14,11 +14,11 @@ struct Event {
 }
 
 struct Date {
-    day: String,
-    month: String,
-    year: String,
-    hour: String,
-    minute: String,
+    day: i32,
+    month: i32,
+    year: i32,
+    hour: i32,
+    minute: i32,
 }
 
 #[wasm_bindgen]
@@ -27,24 +27,22 @@ pub async fn memes() -> String {
     let mut vec = vec![Event {
         title: String::new(),
         start: Date {
-            day: String::new(),
-            month: String::new(),
-            year: String::new(),
-            hour: String::new(),
-            minute: String::new(),
+            day: 0,
+            month: 0,
+            year: 0,
+            hour: 0,
+            minute: 0,
         },
         end: Date {
-            day: String::new(),
-            month: String::new(),
-            year: String::new(),
-            hour: String::new(),
-            minute: String::new(),
+            day: 0,
+            month: 0,
+            year: 0,
+            hour: 0,
+            minute: 0,
         },
         location: String::new(),
         description: String::new(),
     }];
-
-    console_log("test");
 
     let timestamp = chrono::Utc::now().timestamp();
 
@@ -60,18 +58,18 @@ pub async fn memes() -> String {
         let mut event = Event {
             title: String::new(),
             start: Date {
-                day: String::new(),
-                month: String::new(),
-                year: String::new(),
-                hour: String::new(),
-                minute: String::new(),
+                day: 0,
+                month: 0,
+                year: 0,
+                hour: 0,
+                minute: 0,
             },
             end: Date {
-                day: String::new(),
-                month: String::new(),
-                year: String::new(),
-                hour: String::new(),
-                minute: String::new(),
+                day: 0,
+                month: 0,
+                year: 0,
+                hour: 0,
+                minute: 0,
             },
             location: String::new(),
             description: String::new(),
@@ -85,21 +83,19 @@ pub async fn memes() -> String {
         }
 
         if i.contains("DTSTART;TZID=Europe/Berlin:") {
-            event.start.year = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[0..4].to_string();
-            event.start.month = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[4..6].to_string();
-            event.start.day = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[6..8].to_string();
-            event.start.hour = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[1].to_string()[0..2].to_string();
-            event.start.minute = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[1].to_string()[2..4].to_string();
-
-            console_log(&event.start.year);
+            event.start.year = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[0..4].parse::<i32>().unwrap();
+            event.start.month = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[4..6].parse::<i32>().unwrap();
+            event.start.day = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[6..8].parse::<i32>().unwrap();
+            event.start.hour = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[1].to_string()[0..2].parse::<i32>().unwrap();
+            event.start.minute = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[1].to_string()[2..4].parse::<i32>().unwrap();
         }
 
         if i.contains("DTEND;TZID=Europe/Berlin:") {
-            event.end.year = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[0..4].to_string();
-            event.end.month = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[4..6].to_string();
-            event.end.day = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[6..8].to_string();
-            event.end.hour = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[1].to_string()[0..2].to_string();
-            event.end.minute = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[1].to_string()[2..4].to_string();
+            event.end.year = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[0..4].parse::<i32>().unwrap();
+            event.end.month = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[4..6].parse::<i32>().unwrap();
+            event.end.day = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[0].to_string()[6..8].parse::<i32>().unwrap();
+            event.end.hour = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[1].to_string()[0..2].parse::<i32>().unwrap();
+            event.end.minute = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("T").collect::<Vec<_>>()[1].to_string()[2..4].parse::<i32>().unwrap();
             console_log(i.split("DTEND;TZID=Europe/Berlin:").collect::<Vec<_>>()[1].split("\n").collect::<Vec<_>>()[0]);
         }
         
@@ -152,17 +148,23 @@ pub async fn memes() -> String {
 
     });
 
+
+    //format Date to string 
+    
     let mut string = String::new();
     
-    string = string + &vec[1].title + " && " + &vec[1].start.day + " && " + &vec[1].start.month + " && " + &vec[1].start.year + " && " + &vec[1].start.hour + " && " + &vec[1].start.minute + " && " + &vec[1].end.day + " && " + &vec[1].end.month + " && " + &vec[1].end.year + " && " + &vec[1].end.hour + " && " + &vec[1].end.minute + " && " + &vec[1].location + " && " + &vec[1].description + "\n";
+    string = string + &vec[1].title + " && " + &format!("{:02}",vec[1].start.day) + " && " + &format!("{:02}",vec[1].start.month) + " && " + &format!("{:04}",vec[1].start.year) + " && " + &format!("{:02}",vec[1].start.hour) + " && " + &format!("{:02}",vec[1].start.minute) + " && " + &vec[1].location + " && " + &vec[1].description + "\n";
 
     for i in 2..vec.len() {
         if vec[i].title != vec[i-1].title {
-            string = string + &vec[i].title + " && " + &vec[i].start.day + " && " + &vec[i].start.month + " && " + &vec[i].start.year + " && " + &vec[i].start.hour + " && " + &vec[i].start.minute + " && " + &vec[i].end.day + " && " + &vec[i].end.month + " && " + &vec[i].end.year + " && " + &vec[i].end.hour + " && " + &vec[i].end.minute + " && " + &vec[i].location + " && " + &vec[i].description + "\n";
+            string = string + &vec[i].title + " && " + &format!("{:02}",vec[i].start.day) + " && " + &format!("{:02}",vec[i].start.month) + " && " + &format!("{:04}",vec[i].start.year) + " && " + &format!("{:02}",vec[i].start.hour) + " && " + &format!("{:02}",vec[i].start.minute) + " && " + &vec[i].location + " && " + &vec[i].description + "\n";
         }
     }
 
+    console_log("test");
+    console_log(&string.clone());
     string
+
 }
 
 
@@ -222,7 +224,7 @@ pub fn App() -> impl IntoView {
                         </li>
                     };
                 }else{
-                    if x[11].len() > 17 {
+                    if x[6].len() > 17 {
                         if x[0].len() > 20 {
                             return view! {
                                 <li style="width:100%; font-size:180%; color: #00cc00">
@@ -234,7 +236,7 @@ pub fn App() -> impl IntoView {
                                 
                                 <div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span></div>
                                 </li><li style="padding-bottom:30px">
-                                {x[11].clone()} 
+                                {x[6].clone()} 
                                 </li>
 
                             };
@@ -265,7 +267,7 @@ pub fn App() -> impl IntoView {
                             
                             <div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span></div>
                             </li><li style="padding-bottom:30px">
-                            {x[11].clone()} 
+                            {x[6].clone()} 
                             </li>
 
                         };
@@ -280,7 +282,7 @@ pub fn App() -> impl IntoView {
                         
                         {x[0].clone()}
                         </li><li style="padding-bottom:30px">
-                        {x[11].clone()}
+                        {x[6].clone()}
                         </li>
 
                     };

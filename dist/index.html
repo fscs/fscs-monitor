@@ -1,11 +1,6 @@
 <!DOCTYPE html><html><head>
 <style>
-@font-face {
-  font-family: 'Bahn';
-  src:url("/Bahn.ttf");
-
-}
-
+@import url('https://fonts.cdnfonts.com/css/5by7');
 @-moz-keyframes my-animation {
   from { -moz-transform: translateX(100%); }
   to { -moz-transform: translateX(-100%); }
@@ -42,7 +37,7 @@ div {
   float: left;
   color: #cccccc;
   text-align: center;
-  font-family: 'Bahn';
+  font-family: '5by7', monospace;
   overflow: hidden;
   white-space: nowrap; /* Don't forget this one */
 text-overflow: ellipsis;
@@ -97,8 +92,35 @@ table#mensa{
 </style>
 
   
-<link rel="preload" href="/fscs_monitor-8add34f2c5d8b227_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
-<link rel="modulepreload" href="/fscs_monitor-8add34f2c5d8b227.js"></head>
+<link rel="preload" href="/fscs_monitor-8eec033d4bef110_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/fscs_monitor-8eec033d4bef110.js"></head>
   <body>
 
-<script type="module">import init from '/fscs_monitor-8add34f2c5d8b227.js';init('/fscs_monitor-8add34f2c5d8b227_bg.wasm');</script></body></html>
+<script type="module">import init from '/fscs_monitor-8eec033d4bef110.js';init('/fscs_monitor-8eec033d4bef110_bg.wasm');</script><script>(function () {
+    var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    var url = protocol + '//' + window.location.host + '/_trunk/ws';
+    var poll_interval = 5000;
+    var reload_upon_connect = () => {
+        window.setTimeout(
+            () => {
+                // when we successfully reconnect, we'll force a
+                // reload (since we presumably lost connection to
+                // trunk due to it being killed, so it will have
+                // rebuilt on restart)
+                var ws = new WebSocket(url);
+                ws.onopen = () => window.location.reload();
+                ws.onclose = reload_upon_connect;
+            },
+            poll_interval);
+    };
+
+    var ws = new WebSocket(url);
+    ws.onmessage = (ev) => {
+        const msg = JSON.parse(ev.data);
+        if (msg.reload) {
+            window.location.reload();
+        }
+    };
+    ws.onclose = reload_upon_connect;
+})()
+</script></body></html>
