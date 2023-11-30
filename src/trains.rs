@@ -1,11 +1,7 @@
 use std::time::Duration;
-use leptos::{*, leptos_dom::logging::console_log};
+use leptos::*;
 use serde_json::Value;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::JsFuture;
-use web_sys::{RequestInit, Request, Response, RequestCache};
-
-
 #[component]
 pub fn App() -> impl IntoView {
     view! {
@@ -37,7 +33,8 @@ fn Station(id:String) -> impl IntoView {
         let list = list(id2.clone());
         let list = list.await.unwrap();
         list.split("\n").for_each(|_y| {
-            set_state.set(list.split("\n").map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>()).collect::<Vec<_>>());                });
+            set_state.set(list.split("\n").map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>()).collect::<Vec<_>>());
+        });
         let name = get_station_name(id2.clone());
         let name = name.await.unwrap();
         set_name.set(name);
@@ -50,7 +47,8 @@ fn Station(id:String) -> impl IntoView {
                 let list = list(id.clone());
                 let list = list.await.unwrap();
                 list.split("\n").for_each(|_y| {
-                    set_state.set(list.split("\n").map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>()).collect::<Vec<_>>());                });
+                    set_state.set(list.split("\n").map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>()).collect::<Vec<_>>());
+                });
                 let name = get_station_name(id.clone());
                 let name = name.await.unwrap();
                 
@@ -60,9 +58,6 @@ fn Station(id:String) -> impl IntoView {
         },
         Duration::from_secs(60),
     );
-
-
-    
 
     return view! {
         <div class="center" style="height:100%;  ">
@@ -77,9 +72,9 @@ fn Station(id:String) -> impl IntoView {
                  }else{
                      return view! {
                          <tr>
-                             <th>{x[0].clone()}</th>
-                             <th style="text-align:left; line-height:1;">{x[1].clone()}</th>
-                             <th>{x[2].clone()}</th>
+                             <th style="text-align:left;">{x[0].clone()}</th>
+                             <th style="text-align:left; line-height:1; max-width:25vw">{x[1].clone()}</th>
+                             <th style="text-align:right;">{x[2].clone()}</th>
 
                          </tr>
                         }
@@ -92,24 +87,11 @@ fn Station(id:String) -> impl IntoView {
 }
 
 #[wasm_bindgen]
-pub async fn get_departures(id:String) -> Result<JsValue, JsValue> {
+pub async fn get_departures(id:String, limit:i32) -> Result<JsValue, JsValue> {
 
-    let mut opts = RequestInit::new();
-    opts.method("GET");
-    opts.cache(RequestCache::NoStore);
-    console_log(&id);
-    let mut url = format!("https://app.vrr.de/vrrstd/XML_DM_REQUEST?outputFormat=JSON&commonMacro=dm&type_dm=any&name_dm={}&language=de&realtime=1&lsShowTrainsExplicit=1&mode=direct&typeInfo_dm=stopID", id); 
-    if id=="20018249" {
-       url = format!("https://app.vrr.de/vrrstd/XML_DM_REQUEST?outputFormat=JSON&commonMacro=dm&type_dm=any&name_dm={}&language=de&realtime=1&lsShowTrainsExplicit=1&mode=direct&typeInfo_dm=stopID&limit=100", id); 
-    }
-    let request = Request::new_with_str_and_init(&url, &opts)?;
-    let window = web_sys::window().unwrap();
-    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
+    let url = format!("https://app.vrr.de/vrrstd/XML_DM_REQUEST?outputFormat=JSON&commonMacro=dm&type_dm=any&name_dm={}&language=de&realtime=1&lsShowTrainsExplicit=1&mode=direct&typeInfo_dm=stopID&limit={}", id, limit); 
 
-    assert!(resp_value.is_instance_of::<Response>());
-    let resp: Response = resp_value.dyn_into().unwrap();
-
-    let text = JsFuture::from(resp.text()?).await?.as_string().unwrap();
+    let text = super::fetch(url).await;
 
     Ok(JsValue::from_str(&text))
 
@@ -127,47 +109,42 @@ struct Train {
 pub async fn list(id:String) -> Result<String, JsValue> {
 
     let mut vec = Vec::new();
+    let mut limit = 40;
+    if id.clone() == "20018249" {
+        limit = 100;
+    }
 
-    let json = get_departures(id.clone()).await.unwrap().as_string().unwrap();
+    let json: Value = serde_json::from_str(&get_departures(id.clone(), limit).await.unwrap().as_string().unwrap()).unwrap();
 
-    let json: Value = serde_json::from_str(&json).unwrap();
-
-    let mut i = 1;
-    
-    while vec.len() <9 {
-        
-        let train = get_traindata(json.clone(), i);
+    let mut x = 1;
+    while vec.len() < 9{
+        let train = get_traindata(json.clone(), x as usize);
         
         let string = format!("{} && {} && {}min", train.line, train.direction, train.time);
         
-        console_log(&string);
-
-        if train.time.parse::<i32>().unwrap() >= 5 {
+        if train.time.parse::<i32>().unwrap() >= 3 {
             if id.clone() == "20018249" {
-                console_log(&train.train_type);
                 if ((train.train_type == "S-Bahn") || (train.train_type == "Regionalzug"))&&(train.time.parse::<i32>().unwrap() > 15) {
                     vec.push(string);
                 }
             }else{ 
-                vec.push(string);
+                if !train.direction.contains("Uni") {
+                    vec.push(string);
+                }
             }
         }
-        i = i+1;
+        x = x + 1;
     }
 
-    console_log(&vec.join("\n"));
     Ok(vec.join("\n"))
-
-
-
 }
 
 #[wasm_bindgen]
 pub async fn get_station_name(id:String) -> Result<String, JsValue> {
 
-    let json = get_departures(id).await.unwrap().as_string().unwrap();
+    let raw = get_departures(id,2).await.unwrap().as_string().unwrap();
 
-    let json: Value = serde_json::from_str(&json).unwrap();
+    let json: Value = serde_json::from_str(&raw).unwrap();
 
     let name = json["departureList"][0]["stopName"].to_string().replace("\"", "");
     Ok(name)

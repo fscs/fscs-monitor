@@ -1,17 +1,43 @@
 <!DOCTYPE html><html><head>
 <style>
-@font-face {
-  font-family: 'Bahn';
-  src:url("/Bahn.ttf");
-
+@import url('https://fonts.cdnfonts.com/css/5by7');
+@-moz-keyframes my-animation {
+  from { -moz-transform: translateX(100%); }
+  to { -moz-transform: translateX(-100%); }
 }
+
+/* for Chrome */
+@-webkit-keyframes my-animation {
+  from { -webkit-transform: translateX(100%); }
+  to { -webkit-transform: translateX(-100%); }
+}
+
+@keyframes my-animation {
+0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-66.6666666%, 0);
+  }
+}
+
+.scroll{
+    -moz-transform: translateX(100%);
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
+  
+  -moz-animation: my-animation 15s linear infinite;
+  -webkit-animation: my-animation 15s linear infinite;
+  animation: my-animation 15s linear infinite;
+}
+
 div {
   width: 50%;
   height: 50%;
   float: left;
   color: #cccccc;
   text-align: center;
-  font-family: 'Bahn', monospace;
+  font-family: '5by7', monospace;
   overflow: hidden;
   white-space: nowrap; /* Don't forget this one */
 text-overflow: ellipsis;
@@ -30,12 +56,12 @@ html, body {
     width: 100%;;
 }
 h1{
-    font-size: 2.8vw;
+    font-size: 2vw;
     margin: 0;
     font-weight: normal;
 }
 tr{
-    font-size: 2.2vw;
+    font-size: 1.8vw;
     color: #00cc00;
 }
 th{
@@ -66,8 +92,35 @@ table#mensa{
 </style>
 
   
-<link rel="preload" href="/fscs_monitor-f8f89c528dc1fe44_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
-<link rel="modulepreload" href="/fscs_monitor-f8f89c528dc1fe44.js"></head>
+<link rel="preload" href="/fscs_monitor-8eec033d4bef110_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/fscs_monitor-8eec033d4bef110.js"></head>
   <body>
 
-<script type="module">import init from '/fscs_monitor-f8f89c528dc1fe44.js';init('/fscs_monitor-f8f89c528dc1fe44_bg.wasm');</script></body></html>
+<script type="module">import init from '/fscs_monitor-8eec033d4bef110.js';init('/fscs_monitor-8eec033d4bef110_bg.wasm');</script><script>(function () {
+    var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    var url = protocol + '//' + window.location.host + '/_trunk/ws';
+    var poll_interval = 5000;
+    var reload_upon_connect = () => {
+        window.setTimeout(
+            () => {
+                // when we successfully reconnect, we'll force a
+                // reload (since we presumably lost connection to
+                // trunk due to it being killed, so it will have
+                // rebuilt on restart)
+                var ws = new WebSocket(url);
+                ws.onopen = () => window.location.reload();
+                ws.onclose = reload_upon_connect;
+            },
+            poll_interval);
+    };
+
+    var ws = new WebSocket(url);
+    ws.onmessage = (ev) => {
+        const msg = JSON.parse(ev.data);
+        if (msg.reload) {
+            window.location.reload();
+        }
+    };
+    ws.onclose = reload_upon_connect;
+})()
+</script></body></html>
