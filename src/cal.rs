@@ -52,7 +52,7 @@ pub async fn memes() -> String {
     let resp = reqwest::get(url).await.unwrap();
     for i in resp.text().await.unwrap().split("UID:").collect::<Vec<_>>() {
         let i = i.replace("\\", "");
-        if vec.len() > 9 {
+        if vec.len() > 7 {
             break;
         }
         let mut event = Event {
@@ -227,10 +227,10 @@ pub fn App() -> impl IntoView {
                     if x[6].len() > 17 {
                         if x[0].len() > 20 {
                             return view! {
-                                <li style="width:100%; font-size:180%; color: #00cc00">
+                                <li style="width:100%; font-size:180%; color: #00cc00; padding-bottom:0px">
                                 {x[1].clone()}.{x[2].clone()}.{x[3].clone()}
                                 " " 
-                                {x[4].clone()}:{x[5].clone()}<br/><br/>
+                                {x[4].clone()}:{x[5].clone()}
                                 </li>
                                 <li style="width:100%; font-size:1.8vw;overflow:hidden; padding-bottom:10px"> 
                                 
@@ -242,10 +242,10 @@ pub fn App() -> impl IntoView {
                             };
                         }
                         return view! {
-                            <li style="width:100%; font-size:180%; color: #00cc00">
+                            <li style="width:100%; font-size:180%; color: #00cc00; padding-bottom:0px">
                             {x[1].clone()}.{x[2].clone()}.{x[3].clone()}
                             " " 
-                            {x[4].clone()}:{x[5].clone()}<br/><br/>
+                            {x[4].clone()}:{x[5].clone()}
                             </li>
                             <li style="width:100%; font-size:1.8vw;padding-bottom:10px"> 
                             
@@ -258,10 +258,10 @@ pub fn App() -> impl IntoView {
                     }
                     if x[0].len() > 20 {
                         return view! {
-                            <li style="width:100%; font-size:180%; color: #00cc00">
+                            <li style="width:100%; font-size:180%; color: #00cc00; padding-bottom:0px">
                             {x[1].clone()}.{x[2].clone()}.{x[3].clone()}
                             " " 
-                            {x[4].clone()}:{x[5].clone()}<br/><br/>
+                            {x[4].clone()}:{x[5].clone()}
                             </li>
                             <li style="width:100%; font-size:1.8vw;overflow:hidden; padding-bottom:10px"> 
                             
@@ -273,10 +273,10 @@ pub fn App() -> impl IntoView {
                         };
                     }
                     return view! {
-                        <li style="width:100%; font-size:1.8vw; color: #00cc00">
+                        <li style="width:100%; font-size:180%; color: #00cc00; padding-bottom:0px">
                         {x[1].clone()}.{x[2].clone()}.{x[3].clone()}
                         " " 
-                        {x[4].clone()}:{x[5].clone()}<br/><br/>
+                        {x[4].clone()}:{x[5].clone()}
                         </li>
                         <li style="width:100%; font-size:180%;padding-bottom:10px"> 
                         

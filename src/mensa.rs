@@ -1,5 +1,5 @@
 use std::time::Duration;
-use leptos::*;
+use leptos::{*, leptos_dom::logging::console_log};
 use wasm_bindgen::prelude::*;
 #[component]
 pub fn App2() -> impl IntoView {
@@ -35,6 +35,14 @@ fn Essen(id:String) -> impl IntoView {
         <table class="center" id="mensa" >
             <tr> 
             {move || state.get().iter().map(move |x| {
+                console_log(&x[0]);
+                if x[0] == "mensa is closed" {
+                    return view! {
+                        <td class="error">
+                            Mensa is closed
+                        </td>
+                    };
+                }
                  if x[0].is_empty() {
                      return view! {
                          <td class="hidden">
@@ -97,7 +105,6 @@ pub async fn get_food_pic(id:String) -> Result<JsValue, JsValue> {
             return Ok(JsValue::from_str(&url));
         }
     }
-    
     Ok(JsValue::from_str(&text))
 }
 
@@ -121,12 +128,19 @@ pub async fn get_menu(id:String) -> String {
 
         let essen_category = text.split("category\":").collect::<Vec<_>>()[i+1].split(",").collect::<Vec<_>>()[0].replace("\"", "");
         let is_vegan = text.split("notes\":").collect::<Vec<_>>()[i+1].contains("vegan"); 
+        console_log(&essen_category);
+        console_log(&get_food_pic(essen_category.clone()).await.unwrap().as_string().unwrap().to_string());
         let pic_url = get_food_pic(essen_category.clone()).await.unwrap().as_string().unwrap();
-        
-        essen = format!("{} {} && {} && {} && {}\n", essen, essen_category, essen_name, pic_url, is_vegan);
 
+        if pic_url.contains(essen_category.as_str()) { 
+            console_log("true");
+            essen.push_str(&format!("{} && {} && {}\n", pic_url, essen_name, is_vegan));
+
+        }else {
+            console_log("false");
+            return "mensa is closed".to_string();
+        }
     }
-
     essen
 }
 

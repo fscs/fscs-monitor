@@ -20,8 +20,6 @@ pub fn App() -> impl IntoView {
     }
 }
 
-
-
 #[component]
 fn Station(id:String) -> impl IntoView {
    
@@ -67,7 +65,7 @@ fn Station(id:String) -> impl IntoView {
                  if x[0].is_empty() {
                      return view! {
                          <tr class="hidden">
-                             </tr>
+                         </tr>
                      };
                  }else{
                      return view! {
@@ -97,7 +95,6 @@ pub async fn get_departures(id:String, limit:i32) -> Result<JsValue, JsValue> {
 
 }
 
-
 struct Train {
     line: String,
     direction: String,
@@ -107,7 +104,6 @@ struct Train {
 
 #[wasm_bindgen]
 pub async fn list(id:String) -> Result<String, JsValue> {
-
     let mut vec = Vec::new();
     let mut limit = 40;
     if id.clone() == "20018249" {

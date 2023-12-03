@@ -7,8 +7,6 @@ mod trains;
 mod cal;
 mod mensa;
 
-
-
 fn main() {
     spawn_local(async move {
         cal::memes().await;
@@ -51,8 +49,6 @@ fn Notification_Bar() -> impl IntoView {
         </div>
     }
 }
-
-
 
 #[wasm_bindgen]
 pub async fn fetch(url:String) -> String{

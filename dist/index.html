@@ -30,6 +30,12 @@
   -webkit-animation: my-animation 15s linear infinite;
   animation: my-animation 15s linear infinite;
 }
+.error{
+    color: #ff0000;
+    background-color: #000000;
+    vertical-align: middle;
+    font-size: 8vw; 
+}
 
 div {
   width: 50%;
@@ -92,11 +98,11 @@ table#mensa{
 </style>
 
   
-<link rel="preload" href="/fscs_monitor-8eec033d4bef110_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
-<link rel="modulepreload" href="/fscs_monitor-8eec033d4bef110.js"></head>
+<link rel="preload" href="/fscs_monitor-9dd2af0adc5fab0c_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/fscs_monitor-9dd2af0adc5fab0c.js"></head>
   <body>
 
-<script type="module">import init from '/fscs_monitor-8eec033d4bef110.js';init('/fscs_monitor-8eec033d4bef110_bg.wasm');</script><script>(function () {
+<script type="module">import init from '/fscs_monitor-9dd2af0adc5fab0c.js';init('/fscs_monitor-9dd2af0adc5fab0c_bg.wasm');</script><script>(function () {
     var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     var url = protocol + '//' + window.location.host + '/_trunk/ws';
     var poll_interval = 5000;
