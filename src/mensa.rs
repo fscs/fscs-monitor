@@ -93,7 +93,12 @@ pub async fn get_food_pic(id:String) -> Result<JsValue, JsValue> {
 
     let url = format!("https://www.stw-d.de/gastronomie/speiseplaene/essenausgabe-sued-duesseldorf/"); 
 
-    let text = super::fetch(url).await;
+    let text = reqwest::get(url)
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
     let day = format!("data-date='{}'>", today);
     let day_info = text.split(&day);
 
@@ -120,7 +125,7 @@ pub async fn get_menu(id:String) -> String {
         //set day to tomorrow
         day = chrono::Local::now().checked_add_signed(chrono::Duration::days(1)).unwrap().format("%Y-%m-%d").to_string(); 
     }
-    let text = super::fetch(format!("https://openmensa.org/api/v2/canteens/{}/days/{}/meals", id, day)).await;
+    let text = reqwest::get(format!("https://openmensa.org/api/v2/canteens/{}/days/{}/meals", id, day)).await.unwrap().text().await.unwrap();
     let mut essen = String::new();
     for i in 0..text.matches("name").count() {
     

@@ -89,7 +89,12 @@ pub async fn get_departures(id:String, limit:i32) -> Result<JsValue, JsValue> {
 
     let url = format!("https://app.vrr.de/vrrstd/XML_DM_REQUEST?outputFormat=JSON&commonMacro=dm&type_dm=any&name_dm={}&language=de&realtime=1&lsShowTrainsExplicit=1&mode=direct&typeInfo_dm=stopID&limit={}", id, limit); 
 
-    let text = super::fetch(url).await;
+    let text = reqwest::get(url)
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
 
     Ok(JsValue::from_str(&text))
 
