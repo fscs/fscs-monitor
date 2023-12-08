@@ -220,72 +220,72 @@ pub fn App() -> impl IntoView {
         <div style="width:100%; height:100%">
             <ul style="list-style-type:none;padding-left:0px">
             {move || events.get().iter().map(move |x| {
-                                                          if x[0].is_empty() {
-                                                              return view! {
-                                                                  <li class="hidden" style="width:100%">
+              if x[0].is_empty() {
+                  return view! {
+                      <li class="hidden" style="width:100%">
 
-                                                                      </li>
-                                                                      <li>
-                                                                      </li>
-                                                              };
-                                                          }else{
-                                                              if x[2].len() > 17 {
-                                                                  if x[0].len() > 20 {
-                                                                      return view! {
-                                                                          <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
-                                                                          {x[1].clone()}
-                                                                          </li>
-                                                                              <li style="width:100%; font-size:1.8vw;overflow:hidden; padding-bottom:10px">
+                          </li>
+                          <li>
+                          </li>
+                  };
+              }else{
+                  if x[2].len() > 17 {
+                      if x[0].len() > 20 {
+                          return view! {
+                              <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
+                              {x[1].clone()}
+                              </li>
+                                  <li style="width:100%; font-size:1.8vw;overflow:hidden; padding-bottom:10px">
 
-                                                                              <div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span></div>
-                                                                              </li><li style="padding-bottom:30px; font-size:1.3vw">
-                                                                              {x[2].clone()}
-                                                                          </li>
+                                  <div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span></div>
+                                  </li><li style="padding-bottom:30px; font-size:1.3vw">
+                                  {x[2].clone()}
+                              </li>
 
-                                                                      };
-                                                                  }
-                                                                  return view! {
-                                                                      <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
-                                                                      {x[1].clone()}
-                                                                      </li>
-                                                                          <li style="width:100%; font-size:1.8vw;padding-bottom:10px">
+                          };
+                      }
+                      return view! {
+                          <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
+                          {x[1].clone()}
+                          </li>
+                              <li style="width:100%; font-size:1.8vw;padding-bottom:10px">
 
-                                                                          {x[0].clone()}
-                                                                      </li><li style="padding-bottom:30px; font-size:1.3vw">
-                                                                          siehe Kalender
-                                                                          </li>
+                              {x[0].clone()}
+                          </li><li style="padding-bottom:30px; font-size:1.3vw">
+                              siehe Kalender
+                              </li>
 
-                                                                  };
-                                                              }
-                                                              if x[0].len() > 20 {
-                                                                  return view! {
-                                                                      <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
-                                                                      {x[1].clone()}
-                                                                      </li>
-                                                                          <li style="width:100%; font-size:1.8vw;overflow:hidden; padding-bottom:10px">
+                      };
+                  }
+                  if x[0].len() > 20 {
+                      return view! {
+                          <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
+                          {x[1].clone()}
+                          </li>
+                              <li style="width:100%; font-size:1.8vw;overflow:hidden; padding-bottom:10px">
 
-                                                                          <div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span></div>
-                                                                          </li><li style="padding-bottom:30px; font-size:1.3vw">
-                                                                          {x[2].clone()}
-                                                                      </li>
+                              <div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span></div>
+                              </li><li style="padding-bottom:30px; font-size:1.3vw">
+                              {x[2].clone()}
+                          </li>
 
-                                                                  };
-                                                              }
-                                                              return view! {
-                                                                  <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
-                                                                  {x[1].clone()}
-                                                                  </li>
-                                                                      <li style="width:100%; font-size:1.8vw;padding-bottom:10px">
+                      };
+                  }
+                  return view! {
+                      <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
+                      {x[1].clone()}
+                      </li>
+                          <li style="width:100%; font-size:1.8vw;padding-bottom:10px">
 
-                                                                      {x[0].clone()}
-                                                                  </li><li style="padding-bottom:30px; font-size:1.3vw">
-                                                                  {x[2].clone()}
-                                                                  </li>
+                          {x[0].clone()}
+                      </li><li style="padding-bottom:30px; font-size:1.3vw">
+                      {x[2].clone()}
+                      </li>
 
-                                                              };
-                                                          }
+                  };
+              }
 
-                                                      }
+          }
             ).collect::<Vec<_>>()}
         </ul>
             </div>

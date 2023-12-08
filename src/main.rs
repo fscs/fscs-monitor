@@ -11,7 +11,6 @@ fn main() {
     });
     leptos::mount_to_body(move || {
         view! {
-
             <div style="height:100vh; width:80vw">
                 <div style="height:5vh; width:100%">
                     <Notification_Bar/>
