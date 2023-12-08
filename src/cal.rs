@@ -1,5 +1,5 @@
 use std::time::Duration;
-
+use chrono::DateTime;
 use leptos::{
     component, create_signal, leptos_dom::logging::console_log, set_interval, view, IntoView,
     SignalGet, SignalSet,
@@ -9,38 +9,16 @@ use wasm_bindgen_futures::spawn_local;
 
 struct Event {
     title: String,
-    start: Date,
-    end: Date,
+    start: chrono::DateTime<chrono::Utc>,
     location: String,
     description: String,
-}
-
-struct Date {
-    day: i32,
-    month: i32,
-    year: i32,
-    hour: i32,
-    minute: i32,
 }
 
 #[wasm_bindgen]
 pub async fn memes() -> String {
     let mut vec = vec![Event {
         title: String::new(),
-        start: Date {
-            day: 0,
-            month: 0,
-            year: 0,
-            hour: 0,
-            minute: 0,
-        },
-        end: Date {
-            day: 0,
-            month: 0,
-            year: 0,
-            hour: 0,
-            minute: 0,
-        },
+        start: DateTime::parse_from_rfc3339("2021-01-01T00:00:00Z").unwrap().into(),
         location: String::new(),
         description: String::new(),
     }];
@@ -51,27 +29,15 @@ pub async fn memes() -> String {
 
     let resp = reqwest::get(url).await.unwrap();
     for i in resp.text().await.unwrap().split("UID:").collect::<Vec<_>>() {
+        console_log(i);
         let i = i.replace("\\", "");
         if vec.len() > 7 {
             break;
         }
         let mut event = Event {
             title: String::new(),
-            start: Date {
-                day: 0,
-                month: 0,
-                year: 0,
-                hour: 0,
-                minute: 0,
-            },
-            end: Date {
-                day: 0,
-                month: 0,
-                year: 0,
-                hour: 0,
-                minute: 0,
-            },
             location: String::new(),
+            start: DateTime::parse_from_rfc3339("2021-01-01T00:00:00Z").unwrap().into(),
             description: String::new(),
         };
 
@@ -87,75 +53,14 @@ pub async fn memes() -> String {
             );
         }
 
-        if i.contains("DTSTART;TZID=Europe/Berlin:") {
-            event.start.year = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("T")
+        if i.contains("DTSTART") {
+            console_log("test");
+            let date = i.split("DTSTART").collect::<Vec<_>>()[1]
+                .split("\n")
                 .collect::<Vec<_>>()[0]
-                .to_string()[0..4]
-                .parse::<i32>()
-                .unwrap();
-            event.start.month = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("T")
-                .collect::<Vec<_>>()[0]
-                .to_string()[4..6]
-                .parse::<i32>()
-                .unwrap();
-            event.start.day = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("T")
-                .collect::<Vec<_>>()[0]
-                .to_string()[6..8]
-                .parse::<i32>()
-                .unwrap();
-            event.start.hour = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("T")
-                .collect::<Vec<_>>()[1]
-                .to_string()[0..2]
-                .parse::<i32>()
-                .unwrap();
-            event.start.minute = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("T")
-                .collect::<Vec<_>>()[1]
-                .to_string()[2..4]
-                .parse::<i32>()
-                .unwrap();
-        }
-
-        if i.contains("DTEND;TZID=Europe/Berlin:") {
-            event.end.year = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("T")
-                .collect::<Vec<_>>()[0]
-                .to_string()[0..4]
-                .parse::<i32>()
-                .unwrap();
-            event.end.month = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("T")
-                .collect::<Vec<_>>()[0]
-                .to_string()[4..6]
-                .parse::<i32>()
-                .unwrap();
-            event.end.day = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("T")
-                .collect::<Vec<_>>()[0]
-                .to_string()[6..8]
-                .parse::<i32>()
-                .unwrap();
-            event.end.hour = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("T")
-                .collect::<Vec<_>>()[1]
-                .to_string()[0..2]
-                .parse::<i32>()
-                .unwrap();
-            event.end.minute = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("T")
-                .collect::<Vec<_>>()[1]
-                .to_string()[2..4]
-                .parse::<i32>()
-                .unwrap();
-            console_log(
-                i.split("DTEND;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                    .split("\n")
-                    .collect::<Vec<_>>()[0],
-            );
+                .to_string();
+            event.start = DateTime::parse_from_rfc3339(&date).unwrap().into();
+            console_log(&date);
         }
 
         event.location = "TBA".to_string();
@@ -187,9 +92,7 @@ pub async fn memes() -> String {
             );
         }
 
-        if i.contains("END:VEVENT") {
-            console_log("test");
-        }
+        console_log(&event.title);
 
         if !event.title.is_empty() {
             vec.push(event);
@@ -197,29 +100,9 @@ pub async fn memes() -> String {
     }
 
     //sort after date
-    vec.sort_by(|a, b| {
-        if a.start.year == b.start.year {
-            if a.start.month == b.start.month {
-                if a.start.day == b.start.day {
-                    if a.start.hour == b.start.hour {
-                        if a.start.minute == b.start.minute {
-                            return std::cmp::Ordering::Equal;
-                        } else {
-                            return a.start.minute.cmp(&b.start.minute);
-                        }
-                    } else {
-                        return a.start.hour.cmp(&b.start.hour);
-                    }
-                } else {
-                    return a.start.day.cmp(&b.start.day);
-                }
-            } else {
-                return a.start.month.cmp(&b.start.month);
-            }
-        } else {
-            return a.start.year.cmp(&b.start.year);
-        }
-    });
+
+    vec.sort_by(|a, b| a.start.cmp(&b.start));
+
 
     //format Date to string
 
@@ -228,35 +111,23 @@ pub async fn memes() -> String {
     string = string
         + &vec[1].title
         + " && "
-        + &format!("{:02}", vec[1].start.day)
-        + " && "
-        + &format!("{:02}", vec[1].start.month)
-        + " && "
-        + &format!("{:04}", vec[1].start.year)
-        + " && "
-        + &format!("{:02}", vec[1].start.hour)
-        + " && "
-        + &format!("{:02}", vec[1].start.minute)
+        + &vec[1].start.format("%d").to_string()
         + " && "
         + &vec[1].location
         + " && "
         + &vec[1].description
         + "\n";
 
+    console_log("test");
+    console_log(&string.clone());
+
+
     for i in 2..vec.len() {
         if vec[i].title != vec[i - 1].title {
             string = string
                 + &vec[i].title
                 + " && "
-                + &format!("{:02}", vec[i].start.day)
-                + " && "
-                + &format!("{:02}", vec[i].start.month)
-                + " && "
-                + &format!("{:04}", vec[i].start.year)
-                + " && "
-                + &format!("{:02}", vec[i].start.hour)
-                + " && "
-                + &format!("{:02}", vec[i].start.minute)
+                + &vec[i].start.format("%d").to_string()
                 + " && "
                 + &vec[i].location
                 + " && "
@@ -287,6 +158,7 @@ pub fn App() -> impl IntoView {
         for i in events.split("\n").collect::<Vec<_>>() {
             console_log(i);
         }
+        console_log(&events);
     });
 
     set_interval(
@@ -327,7 +199,7 @@ pub fn App() -> impl IntoView {
                     if x[6].len() > 17 {
                         if x[0].len() > 20 {
                             return view! {
-                                <li style="width:100%; font-size:180%; color: #00cc00; padding-bottom:0px">
+                                <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
                                 {x[1].clone()}.{x[2].clone()}.{x[3].clone()}
                                 " "
                                 {x[4].clone()}:{x[5].clone()}
@@ -335,14 +207,14 @@ pub fn App() -> impl IntoView {
                                 <li style="width:100%; font-size:1.8vw;overflow:hidden; padding-bottom:10px">
 
                                 <div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span></div>
-                                </li><li style="padding-bottom:30px">
+                                </li><li style="padding-bottom:30px; font-size:1.3vw">
                                 {x[6].clone()}
                                 </li>
 
                             };
                         }
                         return view! {
-                            <li style="width:100%; font-size:180%; color: #00cc00; padding-bottom:0px">
+                            <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
                             {x[1].clone()}.{x[2].clone()}.{x[3].clone()}
                             " "
                             {x[4].clone()}:{x[5].clone()}
@@ -350,7 +222,7 @@ pub fn App() -> impl IntoView {
                             <li style="width:100%; font-size:1.8vw;padding-bottom:10px">
 
                             {x[0].clone()}
-                            </li><li style="padding-bottom:30px">
+                            </li><li style="padding-bottom:30px; font-size:1.3vw">
                                 siehe Kalender
                             </li>
 
@@ -358,7 +230,7 @@ pub fn App() -> impl IntoView {
                     }
                     if x[0].len() > 20 {
                         return view! {
-                            <li style="width:100%; font-size:180%; color: #00cc00; padding-bottom:0px">
+                            <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
                             {x[1].clone()}.{x[2].clone()}.{x[3].clone()}
                             " "
                             {x[4].clone()}:{x[5].clone()}
@@ -366,22 +238,22 @@ pub fn App() -> impl IntoView {
                             <li style="width:100%; font-size:1.8vw;overflow:hidden; padding-bottom:10px">
 
                             <div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span></div>
-                            </li><li style="padding-bottom:30px">
+                            </li><li style="padding-bottom:30px; font-size:1.3vw">
                             {x[6].clone()}
                             </li>
 
                         };
                     }
                     return view! {
-                        <li style="width:100%; font-size:180%; color: #00cc00; padding-bottom:0px">
+                        <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
                         {x[1].clone()}.{x[2].clone()}.{x[3].clone()}
                         " "
                         {x[4].clone()}:{x[5].clone()}
                         </li>
-                        <li style="width:100%; font-size:180%;padding-bottom:10px">
+                        <li style="width:100%; font-size:1.8vw;padding-bottom:10px">
 
                         {x[0].clone()}
-                        </li><li style="padding-bottom:30px">
+                        </li><li style="padding-bottom:30px; font-size:1.3vw">
                         {x[6].clone()}
                         </li>
 
