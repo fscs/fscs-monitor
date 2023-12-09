@@ -191,16 +191,18 @@ struct Train {
 pub async fn list(id: String) -> Result<String, JsValue> {
     let mut vec = Vec::new();
 
-    let mut limit = 40;
+    let mut limit = 60;
     if id.clone() == "20018249" {
-        limit = 100;
+        limit = 200;
     }
+    console_log(&id);
     let departures = match get_departures(id.clone(),limit).await {
         Ok(x) => x,
         Err(_) => {
             return Err(JsValue::from_str("Error"));
-        }
+        } 
     };
+
 
     let departures = match departures.as_string() {
         Some(x) => x,
@@ -222,9 +224,9 @@ pub async fn list(id: String) -> Result<String, JsValue> {
 
 
     let mut x = 0;
-    while vec.len() < 9 {
+    while vec.len() < 9 && x < limit{
         let train = get_traindata(json.clone(), x as usize);
-
+        console_log(&train.line);
         console_log(&train.direction.to_string());
 
         let time = train.time;
@@ -260,7 +262,7 @@ pub async fn list(id: String) -> Result<String, JsValue> {
 
 #[wasm_bindgen]
 pub async fn get_station_name(id: String) -> Result<String, JsValue> {
-    let raw = match get_departures(id,2).await {
+    let raw = match get_departures(id,4).await {
         Ok(x) => x,
         Err(_) => {
             return Err(JsValue::from_str("Error"));
@@ -292,6 +294,10 @@ fn get_traindata(json: Value, id: usize) -> Train {
     if json["departureList"][&id]["realDateTime"].to_string().contains("null") {
         path = "dateTime";
     }
+
+
+    console_log(&path);
+
 
     let est_day_train = json["departureList"][&id]["dateTime"]["day"]
         .to_string()
@@ -436,6 +442,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
         }
     };
 
+
     let day_now = match day_now.parse::<i32>() {
         Ok(x) => x,
         Err(_) => {
@@ -478,6 +485,14 @@ fn get_traindata(json: Value, id: usize) -> Train {
     if (_real_times.parse::<i32>().unwrap() - _est_times.parse::<i32>().unwrap()) > 5 {
         _onplanned = true;
     }
+    console_log(&json["departureList"][&id]["servingLine"]["number"].to_string());
+    console_log("times");
+    console_log(&_est_times);
+    console_log(&_real_times);
+
+
+
+    console_log(&_real_times);
 
     Train {
         line: json["departureList"][&id]["servingLine"]["number"]
