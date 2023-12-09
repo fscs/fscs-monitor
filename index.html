@@ -22,6 +22,12 @@
   }
 }
 
+.snowflakes_body{
+    height:100vh;
+    overflow:initial;
+    width:100vw;
+}
+
 .scroll{
     -moz-transform: translateX(100%);
   -webkit-transform: translateX(100%);
@@ -95,9 +101,24 @@ table#mensa{
     background-image:url('https://static.planetminecraft.com/files/image/minecraft/texture-pack/2020/428/13530476-cover_l.jpg');
     background-size:contain;
 }
+.snowflakes_body div{
+    overflow:initial;
+}
 
 </style>
 <html>
   <head></head>
-  <body></body>
+  <body>
+
+      <script src="https://unpkg.com/magic-snowflakes/dist/snowflakes.min.js"></script>
+<script>
+    var sf = new Snowflakes({
+        count: 30,
+        speed: 2,
+        minSize: 40,
+        maxSize: 100
+
+    });
+</script>
+  </body>
 </html>
