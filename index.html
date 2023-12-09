@@ -2,6 +2,11 @@
 <link data-trunk rel="copy-file" href="Bahn.ttf"/>
 <style>
 @import url('https://fonts.cdnfonts.com/css/5by7');
+.snowflakes_body{
+    height:100vh;
+    overflow:initial;
+    width:100vw;
+}
 @-moz-keyframes my-animation {
   from { -moz-transform: translateX(100%); }
   to { -moz-transform: translateX(-100%); }
@@ -50,6 +55,9 @@ div {
 text-overflow: ellipsis;
 
 }
+.snowflakes_body div{
+    overflow:initial;
+}
 html, body {
     cursor:none;
     background-color: #000000;
@@ -63,12 +71,12 @@ html, body {
     width: 100%;;
 }
 h1{
-    font-size: 2vw;
+    font-size: 2.5vw;
     margin: 0;
     font-weight: normal;
 }
 tr{
-    font-size: 1.8vw;
+    font-size: 2.3vw;
     color: #00cc00;
 }
 th{
@@ -99,5 +107,18 @@ table#mensa{
 </style>
 <html>
   <head></head>
-  <body></body>
+  <body>
+
+      <script src="https://unpkg.com/magic-snowflakes/dist/snowflakes.min.js"></script>
+<script>
+    var sf = new Snowflakes({
+        count: 30,
+        speed: 2,
+        minSize: 40,
+        maxSize: 100
+
+    });
+</script>
+
+  </body>
 </html>

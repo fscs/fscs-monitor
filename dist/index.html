@@ -1,6 +1,11 @@
 <!DOCTYPE html><html><head>
 <style>
 @import url('https://fonts.cdnfonts.com/css/5by7');
+.snowflakes_body{
+    height:100vh;
+    overflow:initial;
+    width:100vw;
+}
 @-moz-keyframes my-animation {
   from { -moz-transform: translateX(100%); }
   to { -moz-transform: translateX(-100%); }
@@ -49,6 +54,9 @@ div {
 text-overflow: ellipsis;
 
 }
+.snowflakes_body div{
+    overflow:initial;
+}
 html, body {
     cursor:none;
     background-color: #000000;
@@ -62,12 +70,12 @@ html, body {
     width: 100%;;
 }
 h1{
-    font-size: 2vw;
+    font-size: 2.5vw;
     margin: 0;
     font-weight: normal;
 }
 tr{
-    font-size: 1.8vw;
+    font-size: 2.3vw;
     color: #00cc00;
 }
 th{
@@ -98,11 +106,24 @@ table#mensa{
 </style>
 
   
-<link rel="preload" href="/fscs_monitor-9dd2af0adc5fab0c_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
-<link rel="modulepreload" href="/fscs_monitor-9dd2af0adc5fab0c.js"></head>
+<link rel="preload" href="/fscs_monitor-47ea7c76cf9e620a_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/fscs_monitor-47ea7c76cf9e620a.js"></head>
   <body>
 
-<script type="module">import init from '/fscs_monitor-9dd2af0adc5fab0c.js';init('/fscs_monitor-9dd2af0adc5fab0c_bg.wasm');</script><script>(function () {
+      <script src="https://unpkg.com/magic-snowflakes/dist/snowflakes.min.js"></script>
+<script>
+    var sf = new Snowflakes({
+        count: 30,
+        speed: 2,
+        minSize: 40,
+        maxSize: 100
+
+    });
+</script>
+
+  
+
+<script type="module">import init from '/fscs_monitor-47ea7c76cf9e620a.js';init('/fscs_monitor-47ea7c76cf9e620a_bg.wasm');</script><script>(function () {
     var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     var url = protocol + '//' + window.location.host + '/_trunk/ws';
     var poll_interval = 5000;
