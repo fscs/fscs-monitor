@@ -32,7 +32,7 @@ pub async fn memes() -> String {
     let resp = reqwest::get(url).await.unwrap();
     for i in resp.text().await.unwrap().split("UID:").collect::<Vec<_>>() {
         console_log(i);
-        let i = i.replace("\\", "");
+        let i = i.replace('\\', "");
         if vec.len() > 7 {
             break;
         }
@@ -47,12 +47,12 @@ pub async fn memes() -> String {
 
         if i.contains("SUMMARY:") {
             event.title = i.split("SUMMARY:").collect::<Vec<_>>()[1]
-                .split("\n")
+                .split('\n')
                 .collect::<Vec<_>>()[0]
                 .to_string();
             console_log(
                 i.split("SUMMARY:").collect::<Vec<_>>()[1]
-                    .split("\n")
+                    .split('\n')
                     .collect::<Vec<_>>()[0],
             );
         }
@@ -60,7 +60,7 @@ pub async fn memes() -> String {
         if i.contains("DTSTART;TZID=Europe/Berlin:") {
             console_log("test");
             let date = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
-                .split("\n")
+                .split('\n')
                 .collect::<Vec<_>>()[0]
                 .to_string();
             console_log(&date);
@@ -103,27 +103,27 @@ pub async fn memes() -> String {
 
         if i.contains("LOCATION:") {
             event.location = i.split("LOCATION:").collect::<Vec<_>>()[1]
-                .split("\n")
+                .split('\n')
                 .collect::<Vec<_>>()[0]
                 .to_string()
-                .split("|")
+                .split('|')
                 .collect::<Vec<_>>()[0]
                 .to_string();
             console_log(
                 i.split("LOCATION:").collect::<Vec<_>>()[1]
-                    .split("\n")
+                    .split('\n')
                     .collect::<Vec<_>>()[0],
             );
         }
 
         if i.contains("DESCRIPTION:") {
             event.description = i.split("DESCRIPTION:").collect::<Vec<_>>()[1]
-                .split("\n")
+                .split('\n')
                 .collect::<Vec<_>>()[0]
                 .to_string();
             console_log(
                 i.split("DESCRIPTION:").collect::<Vec<_>>()[1]
-                    .split("\n")
+                    .split('\n')
                     .collect::<Vec<_>>()[0],
             );
         }
@@ -182,13 +182,13 @@ pub fn App() -> impl IntoView {
 
         let mut tmp = vec![vec![String::new()]];
 
-        for i in events.split("\n").collect::<Vec<_>>() {
+        for i in events.split('\n').collect::<Vec<_>>() {
             tmp.push(i.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>());
         }
 
         set_events.set(tmp);
 
-        for i in events.split("\n").collect::<Vec<_>>() {
+        for i in events.split('\n').collect::<Vec<_>>() {
             console_log(i);
         }
         console_log(&events);
@@ -201,13 +201,13 @@ pub fn App() -> impl IntoView {
 
                 let mut tmp = vec![vec![String::new()]];
 
-                for i in events.split("\n").collect::<Vec<_>>() {
+                for i in events.split('\n').collect::<Vec<_>>() {
                     tmp.push(i.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>());
                 }
 
                 set_events.set(tmp);
 
-                for i in events.split("\n").collect::<Vec<_>>() {
+                for i in events.split('\n').collect::<Vec<_>>() {
                     console_log(i);
                 }
             });
@@ -221,13 +221,13 @@ pub fn App() -> impl IntoView {
             <ul style="list-style-type:none;padding-left:0px">
             {move || events.get().iter().map(move |x| {
               if x[0].is_empty() {
-                  return view! {
+                  view! {
                       <li class="hidden" style="width:100%">
 
                           </li>
                           <li>
                           </li>
-                  };
+                  }
               }else{
                   if x[2].len() > 17 {
                       if x[0].len() > 20 {
@@ -271,7 +271,7 @@ pub fn App() -> impl IntoView {
 
                       };
                   }
-                  return view! {
+                  view! {
                       <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
                       {x[1].clone()}
                       </li>
@@ -282,7 +282,7 @@ pub fn App() -> impl IntoView {
                       {x[2].clone()}
                       </li>
 
-                  };
+                  }
               }
 
           }
