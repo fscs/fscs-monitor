@@ -1,30 +1,32 @@
+use leptos::*;
 use std::time::Duration;
-use leptos::{*};
-mod trains;
-mod mensa;
+
 mod cal;
+mod mensa;
+mod trains;
+
 fn main() {
     spawn_local(async move {
         cal::memes().await;
     });
-    leptos::mount_to_body(move || view! { 
-
-        <div style="height:100vh; width:80vw">
-            <div style="height:5vh; width:100%">
-                <Notification_Bar/>
+    leptos::mount_to_body(move || {
+        view! {
+            <div style="height:100vh; width:80vw">
+                <div style="height:5vh; width:100%">
+                    <Notification_Bar/>
+                </div>
+                <div style="height:75vh; width:100%;">
+                  <trains::App/>
+                </div>
+                <div style="height:20vh; width:100%;">
+                  <mensa::App2/>
+                </div>
             </div>
-            <div style="height:75vh; width:100%;">
-              <trains::App/>  
+            <div style="height:100vh; width:20vw">
+                <cal::App/>
             </div>
-            <div style="height:20vh; width:100%;">
-              <mensa::App2/>
-            </div>
-        </div>
-        <div style="height:100vh; width:20vw">
-            <cal::App/>
-        </div>
+        }
     })
-
 }
 
 #[component]
@@ -45,6 +47,3 @@ fn Notification_Bar() -> impl IntoView {
         </div>
     }
 }
-
-
-
