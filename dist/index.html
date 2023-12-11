@@ -1,21 +1,61 @@
 <!DOCTYPE html><html><head>
 <style>
-@font-face {
-  font-family: 'Bahn';
-  src:url("/Bahn.ttf");
-
+@import url('https://fonts.cdnfonts.com/css/5by7');
+.snowflakes_body{
+    height:100vh;
+    overflow:initial;
+    width:100vw;
 }
+@-moz-keyframes my-animation {
+  from { -moz-transform: translateX(100%); }
+  to { -moz-transform: translateX(-100%); }
+}
+
+/* for Chrome */
+@-webkit-keyframes my-animation {
+  from { -webkit-transform: translateX(100%); }
+  to { -webkit-transform: translateX(-100%); }
+}
+
+@keyframes my-animation {
+0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-66.6666666%, 0);
+  }
+}
+
+.scroll{
+    -moz-transform: translateX(100%);
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
+  
+  -moz-animation: my-animation 15s linear infinite;
+  -webkit-animation: my-animation 15s linear infinite;
+  animation: my-animation 15s linear infinite;
+}
+.error{
+    color: #ff0000;
+    background-color: #000000;
+    vertical-align: middle;
+    font-size: 8vw; 
+}
+
 div {
   width: 50%;
   height: 50%;
   float: left;
   color: #cccccc;
   text-align: center;
-  font-family: 'Bahn', monospace;
+  font-family: '5by7', monospace;
   overflow: hidden;
   white-space: nowrap; /* Don't forget this one */
 text-overflow: ellipsis;
 
+}
+.snowflakes_body div{
+    overflow:initial;
 }
 html, body {
     cursor:none;
@@ -30,12 +70,12 @@ html, body {
     width: 100%;;
 }
 h1{
-    font-size: 2.8vw;
+    font-size: 2.5vw;
     margin: 0;
     font-weight: normal;
 }
 tr{
-    font-size: 2.2vw;
+    font-size: 2.3vw;
     color: #00cc00;
 }
 th{
@@ -66,8 +106,9 @@ table#mensa{
 </style>
 
   
-<link rel="preload" href="/fscs_monitor-f8f89c528dc1fe44_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
-<link rel="modulepreload" href="/fscs_monitor-f8f89c528dc1fe44.js"></head>
+<link rel="preload" href="/fscs_monitor-ed6adbbad0ca3fa7_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/fscs_monitor-ed6adbbad0ca3fa7.js"></head>
   <body>
+  
 
-<script type="module">import init from '/fscs_monitor-f8f89c528dc1fe44.js';init('/fscs_monitor-f8f89c528dc1fe44_bg.wasm');</script></body></html>
+<script type="module">import init from '/fscs_monitor-ed6adbbad0ca3fa7.js';init('/fscs_monitor-ed6adbbad0ca3fa7_bg.wasm');</script></body></html>
