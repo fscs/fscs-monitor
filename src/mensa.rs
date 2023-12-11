@@ -255,14 +255,17 @@ pub async fn get_menu(id: String) -> String {
                 .unwrap()
                 .to_string(),
         );
-        let pic_url = get_food_pic(essen_category.clone())
-            .await
-            .unwrap()
-            .as_string()
-            .unwrap();
+        let pic_url = match get_food_pic(essen_category.clone()).await.unwrap().as_string() {
+            Some(x) => x,
+            None => "mensa is closed".to_string(),
+        };
+        if pic_url.contains(essen_category.as_str()) {
         console_log(&pic_url);
         console_log("true");
         essen.push_str(&format!("{} && {} && {} && {}\n",essen_category, essen_name, pic_url, is_vegan));
+        }else{
+            return "mensa is closed".to_string();
+        }
     }
     console_log(&essen);
     essen
