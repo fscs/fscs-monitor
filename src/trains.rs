@@ -99,10 +99,7 @@ fn Station(id: String) -> impl IntoView {
                  }else if x[1].len() >= 27{
                      if x[3].clone() == "true" {
                          return view! {
-                             <tr>
-                                 <th style="color:#f00; text-align:left;">{x[0].clone()}</th>
-                                 <th style="color:#f00; text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#ff0000; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
-                                 <th style="color:#f00; text-align:right;">{x[2].clone()}</th>
+                             <tr class="hidden">
                              </tr>
                          }
                      }
@@ -126,10 +123,7 @@ fn Station(id: String) -> impl IntoView {
                  else {
                      if x[3].clone() == "true" {
                          return view! {
-                             <tr>
-                                 <th style="color:#f00; text-align:left;">{x[0].clone()}</th>
-                                 <th style="color:#f00; text-align:left; line-height:1; max-width:25vw">{x[1].clone()}</th>
-                                 <th style="color:#f00; text-align:right;">{x[2].clone()}</th>
+                             <tr class="hidden">
                              </tr>
                          }
                      }
@@ -224,22 +218,24 @@ pub async fn list(id: String) -> Result<String, JsValue> {
 
 
     let mut x = 0;
-    while vec.len() < 9 && x < limit{
+    while x < limit{
         let train = get_traindata(json.clone(), x as usize);
         console_log(&train.line);
         console_log(&train.direction.to_string());
 
         let time = train.time;
-
-        if time >= 3 {
-            if id.clone() == "20018249" {
-                if ((train.train_type == "S-Bahn") || (train.train_type == "Regionalzug"))
-                    && (time > 15)
-                {
+        
+        if train.canceled == false{
+            if time >= 3 {
+                if id.clone() == "20018249" {
+                    if ((train.train_type == "S-Bahn") || (train.train_type == "Regionalzug"))
+                        && (time > 15)
+                    {
+                        vec.push(train);
+                    }
+                } else if !train.direction.contains("Uni") {
                     vec.push(train);
                 }
-            } else if !train.direction.contains("Uni") {
-                vec.push(train);
             }
         }
         x += 1;
@@ -247,6 +243,9 @@ pub async fn list(id: String) -> Result<String, JsValue> {
     
 
     vec.sort_by(|a, b| a.time.cmp(&b.time));
+
+
+    vec.truncate(9);
 
     Ok(vec
         .iter()
