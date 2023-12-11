@@ -99,10 +99,7 @@ fn Station(id: String) -> impl IntoView {
                  }else if x[1].len() >= 27{
                      if x[3].clone() == "true" {
                          return view! {
-                             <tr>
-                                 <th style="color:#f00; text-align:left;">{x[0].clone()}</th>
-                                 <th style="color:#f00; text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#ff0000; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
-                                 <th style="color:#f00; text-align:right;">{x[2].clone()}</th>
+                             <tr class="hidden">
                              </tr>
                          }
                      }
@@ -126,10 +123,7 @@ fn Station(id: String) -> impl IntoView {
                  else {
                      if x[3].clone() == "true" {
                          return view! {
-                             <tr>
-                                 <th style="color:#f00; text-align:left;">{x[0].clone()}</th>
-                                 <th style="color:#f00; text-align:left; line-height:1; max-width:25vw">{x[1].clone()}</th>
-                                 <th style="color:#f00; text-align:right;">{x[2].clone()}</th>
+                             <tr class="hidden">
                              </tr>
                          }
                      }
@@ -181,7 +175,7 @@ pub async fn get_departures(id: String, limit: i32) -> Result<JsValue, JsValue> 
 struct Train {
     line: String,
     direction: String,
-    time: String,
+    time: i32,
     train_type: String,
     canceled: bool,
     onplanned: bool,
@@ -190,16 +184,19 @@ struct Train {
 #[wasm_bindgen]
 pub async fn list(id: String) -> Result<String, JsValue> {
     let mut vec = Vec::new();
-    let mut limit = 40;
+
+    let mut limit = 60;
     if id.clone() == "20018249" {
-        limit = 100;
+        limit = 200;
     }
+    console_log(&id);
     let departures = match get_departures(id.clone(),limit).await {
         Ok(x) => x,
         Err(_) => {
             return Err(JsValue::from_str("Error"));
-        }
+        } 
     };
+
 
     let departures = match departures.as_string() {
         Some(x) => x,
@@ -217,40 +214,54 @@ pub async fn list(id: String) -> Result<String, JsValue> {
 
     console_log(&json.to_string());
 
-    let mut x = 1;
-    while vec.len() < 9 {
+    console_log("meme");
+
+
+    let mut x = 0;
+    while x < limit{
         let train = get_traindata(json.clone(), x as usize);
+        console_log(&train.line);
+        console_log(&train.direction.to_string());
 
-        let string = format!("{} && {} && {}min && {} && {}", train.line, train.direction, train.time, train.canceled, train.onplanned);
+        let time = train.time;
         
-        let time = match train.time.parse:: <i32>() {
-            Ok(x) => x,
-            Err(_) => {
-                return Err(JsValue::from_str("Error"));
-            }
-        };
-
-        if time >= 3 {
-            if id.clone() == "20018249" {
-                if ((train.train_type == "S-Bahn") || (train.train_type == "Regionalzug"))
-                    && (time > 15)
-                {
-                    vec.push(string);
+        if train.canceled == false{
+            if time >= 3 {
+                if id.clone() == "20018249" {
+                    if ((train.train_type == "S-Bahn") || (train.train_type == "Regionalzug"))
+                        && (time > 15)
+                    {
+                        vec.push(train);
+                    }
+                } else if !train.direction.contains("Uni") {
+                    vec.push(train);
                 }
-            } else if !train.direction.contains("Uni") {
-                vec.push(string);
             }
         }
         x += 1;
     }
+    
 
-    console_log(&vec.join("\n"));
-    Ok(vec.join("\n"))
+    vec.sort_by(|a, b| a.time.cmp(&b.time));
+
+
+    vec.truncate(9);
+
+    Ok(vec
+        .iter()
+        .map(|x| {
+            format!(
+                "{} && {} && {}min && {} && {}",
+                x.line, x.direction, x.time, x.canceled, x.onplanned
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n"))
 }
 
 #[wasm_bindgen]
 pub async fn get_station_name(id: String) -> Result<String, JsValue> {
-    let raw = match get_departures(id,2).await {
+    let raw = match get_departures(id,4).await {
         Ok(x) => x,
         Err(_) => {
             return Err(JsValue::from_str("Error"));
@@ -283,6 +294,10 @@ fn get_traindata(json: Value, id: usize) -> Train {
         path = "dateTime";
     }
 
+
+    console_log(&path);
+
+
     let est_day_train = json["departureList"][&id]["dateTime"]["day"]
         .to_string()
         .replace('\"', "");
@@ -302,7 +317,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             return Train {
                 line: String::new(),
                 direction: String::new(),
-                time: String::new(),
+                time: 0,
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
@@ -316,7 +331,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             return Train {
                 line: String::new(),
                 direction: String::new(),
-                time: String::new(),
+                time: 0,
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
@@ -330,7 +345,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             return Train {
                 line: String::new(),
                 direction: String::new(),
-                time: String::new(),
+                time: 0,
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
@@ -362,7 +377,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             return Train {
                 line: String::new(),
                 direction: String::new(),
-                time: String::new(),
+                time: 0,
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
@@ -376,7 +391,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             return Train {
                 line: String::new(),
                 direction: String::new(),
-                time: String::new(),
+                time: 0,
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
@@ -390,7 +405,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             return Train {
                 line: String::new(),
                 direction: String::new(),
-                time: String::new(),
+                time: 0,
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
@@ -404,7 +419,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             return Train {
                 line: String::new(),
                 direction: String::new(),
-                time: String::new(),
+                time: 0,
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
@@ -418,7 +433,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             return Train {
                 line: String::new(),
                 direction: String::new(),
-                time: String::new(),
+                time: 0,
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
@@ -426,13 +441,14 @@ fn get_traindata(json: Value, id: usize) -> Train {
         }
     };
 
+
     let day_now = match day_now.parse::<i32>() {
         Ok(x) => x,
         Err(_) => {
             return Train {
                 line: String::new(),
                 direction: String::new(),
-                time: String::new(),
+                time: 0,
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
@@ -468,6 +484,14 @@ fn get_traindata(json: Value, id: usize) -> Train {
     if (_real_times.parse::<i32>().unwrap() - _est_times.parse::<i32>().unwrap()) > 5 {
         _onplanned = true;
     }
+    console_log(&json["departureList"][&id]["servingLine"]["number"].to_string());
+    console_log("times");
+    console_log(&_est_times);
+    console_log(&_real_times);
+
+
+
+    console_log(&_real_times);
 
     Train {
         line: json["departureList"][&id]["servingLine"]["number"]
@@ -478,7 +502,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             .to_string()
             .replace('\"', "")
             +" ",
-        time: _real_times,
+        time: _real_times.parse::<i32>().unwrap(),
         train_type: json["departureList"][&id]["servingLine"]["name"]
             .to_string()
             .replace('\"', ""),
