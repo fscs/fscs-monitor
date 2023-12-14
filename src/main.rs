@@ -25,7 +25,8 @@ fn Notification_Bar() -> impl IntoView {
 
     set_interval(
         move || {
-            let time = chrono::Local::now().format("%d.%m.%Y   %H:%M").to_string();
+            let time = chrono::Local::now()
+                .format("%d.%m.%Y %H:%M").to_string();
             set_localtime.set(time);
         },
         Duration::from_secs(1),

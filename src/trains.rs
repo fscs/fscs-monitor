@@ -37,7 +37,9 @@ fn Station(id: String) -> impl IntoView {
         list.split('\n').for_each(|_y| {
             set_state.set(
                 list.split('\n')
-                    .map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>())
+                    .map(|x| 
+                         x.split(" && ").map(|x| 
+                                x.to_string()).collect::<Vec<_>>())
                     .collect::<Vec<_>>(),
             );
         });
@@ -48,8 +50,6 @@ fn Station(id: String) -> impl IntoView {
                 return;
             }
         };
-        console_log(&list);
-
         set_name.set(name);
     });
 
@@ -67,7 +67,9 @@ fn Station(id: String) -> impl IntoView {
                 list.split('\n').for_each(|_y| {
                     set_state.set(
                         list.split('\n')
-                            .map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>())
+                            .map(|x| 
+                                 x.split(" && ").map(|x| 
+                                    x.to_string()).collect::<Vec<_>>())
                             .collect::<Vec<_>>(),
                     );
                 });
@@ -86,11 +88,10 @@ fn Station(id: String) -> impl IntoView {
     
 
     view! {
-        <div class="center" style="height:100%;  ">
+        <div class="center" style="height:100%;">
             <h1>{name}</h1>
             <table class="center" style="padding-left:30px; padding-right:30px;">
             {move || state.get().iter().map(move |x| {
-
                  if x[0].is_empty() {
                      view! {
                          <tr class="hidden">
@@ -106,46 +107,96 @@ fn Station(id: String) -> impl IntoView {
                      if x[4].clone() == "true" {
                          return view! {
                              <tr>
-                                 <th style="color:#ff0; text-align:left;">{x[0].clone()}</th>
-                                 <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#ff0000; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
-                                 <th style="color:#ff0; text-align:right;">{x[2].clone()}</th>
+                                <th style="color:#ff0;
+                                    text-align:left;">
+                                    {x[0].clone()}
+                                </th>
+                                <th style="color:#ff0;
+                                    text-align:left;
+                                    line-height:1;
+                                    max-width:25vw;
+                                    overflow:hidden;">
+                                        <div class="scroll" 
+                                            style="color:#ff0000;
+                                                width:auto;">
+                                            <span>{x[1].clone()}</span>
+                                            <span>{x[1].clone()}</span>
+                                            <span>{x[1].clone()}</span>
+                                        </div>
+                                </th>
+                                <th style="color:#ff0;
+                                            text-align:right;">
+                                            {x[2].clone()}
+                                </th>
                              </tr>
                          }
                      }
                      return view! {
                          <tr>
-                             <th style="text-align:left;">{x[0].clone()}</th>
-                             <th style="text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#00cc00; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
-                             <th style="text-align:right;">{x[2].clone()}</th>
+                            <th style="text-align:left;">
+                                {x[0].clone()}
+                            </th>
+                            <th style="text-align:left;
+                                line-height:1;
+                                max-width:25vw;
+                                overflow:hidden;">
+                                    <div class="scroll" 
+                                        style="color:#00cc00;
+                                            width:auto;">
+                                        <span>{x[1].clone()}</span>
+                                        <span>{x[1].clone()}</span>
+                                        <span>{x[1].clone()}</span>
+                                    </div>
+                            </th>
+                            <th style="text-align:right;">
+                                {x[2].clone()}
+                            </th>
                          </tr>
+                    }
+                }else {
+                    if x[3].clone() == "true" {
+                        return view! {
+                            <tr class="hidden">
+                            </tr>
                         }
-                     }
-                 else {
-                     if x[3].clone() == "true" {
-                         return view! {
-                             <tr class="hidden">
-                             </tr>
-                         }
-                     }
-                     if x[4].clone() == "true" {
-                         return view! {
-                             <tr>
-                                 <th style="color:#ff0; text-align:left;">{x[0].clone()}</th>
-                                 <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw">{x[1].clone()}</th>
-                                 <th style="color:#ff0; text-align:right;">{x[2].clone()}</th>
-                             </tr>
-                         }
-                     }
-                     return view! {
-                         <tr>
-                             <th style="text-align:left;">{x[0].clone()}</th>
-                             <th style="text-align:left; line-height:1; max-width:25vw">{x[1].clone()}</th>
-                             <th style="text-align:right;">{x[2].clone()}</th>
-
-                         </tr>
+                    }
+                    if x[4].clone() == "true" {
+                        return view! {
+                            <tr>
+                                <th style="color:#ff0;
+                                    text-align:left;">
+                                    {x[0].clone()}
+                                </th>
+                                <th style="color:#ff0; 
+                                    text-align:left; 
+                                    line-height:1; 
+                                    max-width:25vw">
+                                        {x[1].clone()}
+                                </th>
+                                <th style="color:#ff0; 
+                                    text-align:right;">
+                                    {x[2].clone()}
+                                </th>
+                            </tr>
+                        }
+                    }
+                    return view! {
+                        <tr>
+                            <th style="text-align:left;">
+                                {x[0].clone()}
+                            </th>
+                            <th style="text-align:left;
+                                        line-height:1;
+                                        max-width:25vw">
+                                        {x[1].clone()}
+                            </th>
+                            <th style="text-align:right;">
+                                {x[2].clone()}
+                            </th>
+                        </tr>
                      }
                  }
-             }).collect::<Vec<_>>()
+            }).collect::<Vec<_>>()
             }
             </table>
         </div>
@@ -154,7 +205,18 @@ fn Station(id: String) -> impl IntoView {
 
 #[wasm_bindgen]
 pub async fn get_departures(id: String, limit: i32) -> Result<JsValue, JsValue> {
-    let url = format!("https://app.vrr.de/vrrstd/XML_DM_REQUEST?outputFormat=JSON&commonMacro=dm&type_dm=any&name_dm={}&language=de&useRealtime=1&lsShowTrainsExplicit=1&mode=direct&typeInfo_dm=stopID&limit={}", id, limit);
+    let url = format!("https://app.vrr.de/vrrstd/XML_DM_REQUEST?
+                      outputFormat=JSON
+                      &commonMacro=dm
+                      &type_dm=any
+                      &name_dm={}
+                      &language=de
+                      &useRealtime=1
+                      &lsShowTrainsExplicit=1
+                      &mode=direct
+                      &typeInfo_dm=stopID
+                      &limit={}",
+                      id, limit);
 
     let text = match reqwest::get(url).await {
         Ok(x) => x.text().await,
@@ -213,16 +275,9 @@ pub async fn list(id: String) -> Result<String, JsValue> {
         }
     };
 
-    console_log(&json.to_string());
-
-    console_log("meme");
-
-
     let mut x = 0;
     while x < limit{
         let train = get_traindata(json.clone(), x as usize);
-        console_log(&train.line);
-        console_log(&train.direction.to_string());
 
         let time = train.time;
         
@@ -497,19 +552,13 @@ fn get_traindata(json: Value, id: usize) -> Train {
     _est_times = diff.to_string();
 
     let mut _onplanned = false;
-    if (_real_times.parse::<i32>().unwrap() - _est_times.parse::<i32>().unwrap()) > 5 {
+    if (_real_times.parse::<i32>().unwrap() - _est_times
+        .parse::<i32>().unwrap()) > 5 {
         _onplanned = true;
     }
-    console_log(&json["departureList"][&id]["servingLine"]["number"].to_string());
-    console_log("times");
-    console_log(&_est_times);
-    console_log(&_real_times);
 
-    let _delay = _real_times.parse::<i32>().unwrap() - _est_times.parse::<i32>().unwrap();
-
-
-
-    console_log(&_real_times);
+    let _delay = 
+        _real_times.parse::<i32>().unwrap()-_est_times.parse::<i32>().unwrap();
 
     Train {
         line: json["departureList"][&id]["servingLine"]["number"]
@@ -530,7 +579,6 @@ fn get_traindata(json: Value, id: usize) -> Train {
             .contains("TRIP_CANCELLED"),
         onplanned: _onplanned,
     }
-
 
 }
 
