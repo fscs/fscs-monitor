@@ -106,36 +106,9 @@ table#mensa{
 </style>
 
   
-<link rel="preload" href="/fscs_monitor-c5618233968e4d3c_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
-<link rel="modulepreload" href="/fscs_monitor-c5618233968e4d3c.js"></head>
+<link rel="preload" href="/fscs_monitor-e6e2dd310d6ac94c_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
+<link rel="modulepreload" href="/fscs_monitor-e6e2dd310d6ac94c.js"></head>
   <body>
   
 
-<script type="module">import init from '/fscs_monitor-c5618233968e4d3c.js';init('/fscs_monitor-c5618233968e4d3c_bg.wasm');</script><script>(function () {
-    var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    var url = protocol + '//' + window.location.host + '/_trunk/ws';
-    var poll_interval = 5000;
-    var reload_upon_connect = () => {
-        window.setTimeout(
-            () => {
-                // when we successfully reconnect, we'll force a
-                // reload (since we presumably lost connection to
-                // trunk due to it being killed, so it will have
-                // rebuilt on restart)
-                var ws = new WebSocket(url);
-                ws.onopen = () => window.location.reload();
-                ws.onclose = reload_upon_connect;
-            },
-            poll_interval);
-    };
-
-    var ws = new WebSocket(url);
-    ws.onmessage = (ev) => {
-        const msg = JSON.parse(ev.data);
-        if (msg.reload) {
-            window.location.reload();
-        }
-    };
-    ws.onclose = reload_upon_connect;
-})()
-</script></body></html>
+<script type="module">import init from '/fscs_monitor-e6e2dd310d6ac94c.js';init('/fscs_monitor-e6e2dd310d6ac94c_bg.wasm');</script></body></html>
