@@ -6,9 +6,6 @@ mod mensa;
 mod trains;
 
 fn main() {
-    spawn_local(async move {
-        cal::memes().await;
-    });
     leptos::mount_to_body(move || {
         view! {
             <div style="height:100vh; width:80vw">
@@ -21,9 +18,6 @@ fn main() {
                 <div style="height:20vh; width:100%;">
                   <mensa::App2/>
                 </div>
-            </div>
-            <div style="height:100vh; width:20vw">
-                <cal::App/>
             </div>
         }
     })

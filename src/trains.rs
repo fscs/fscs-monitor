@@ -253,12 +253,12 @@ pub async fn list(id: String) -> Result<String, JsValue> {
         .map(|x| {
             if x.onplanned == true {
                 return format!(
-                    "{} && {} && (+{}) {}m && {} && {}",
+                    "{} && {} && (+{}){}m && {} && {}",
                     x.line, x.direction, x.delay, x.time, x.canceled, "true"
                 );
             }
             format!(
-                "{} && {} && {}m && {} && {}",
+                "{} && {} && {}min && {} && {}",
                 x.line, x.direction, x.time, x.canceled, "false"
             )
         })
