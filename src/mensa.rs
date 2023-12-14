@@ -19,7 +19,9 @@ fn Essen(id: String) -> impl IntoView {
         let list = list.await;
         set_state.set(
             list.split('\n')
-                .map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>())
+                .map(|x| 
+                     x.split(" && ").map(|x| x.to_string())
+                     .collect::<Vec<_>>())
                 .collect::<Vec<_>>(),
         );
     });
@@ -32,7 +34,9 @@ fn Essen(id: String) -> impl IntoView {
                 let list = list.await;
                 set_state.set(
                     list.split('\n')
-                        .map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>())
+                        .map(|x| 
+                             x.split(" && ").map(|x| x.to_string())
+                             .collect::<Vec<_>>())
                         .collect::<Vec<_>>(),
                 );
             });
@@ -58,14 +62,35 @@ fn Essen(id: String) -> impl IntoView {
                          </td>
                      }
                  }else{
-                     let style = format!("background-image: url({}); background-size: 110%; background-repeat: no-repeat; background-position: center; height: 100%; width: 100%; padding:0px", x[2].clone());
+                     let style = format!("background-image: url({});
+                                         background-size: 110%;
+                                         background-repeat: no-repeat;
+                                         background-position: center;
+                                         height: 100%;
+                                         width: 100%;
+                                         padding:0px", 
+                                         x[2].clone());
                          if x[3].clone() == "true" {
                              return view! {
                                  <td style=style>
-                                     <div style="width:100%; height:auto; background:#3d3d3d; color:white;">
-                                        <div style="width:calc(90% - 20px); background-color:#000000; color:#ffffff; margin:0px;overflow:hidden; text-overflow:ellipsis; height:fit-content;padding:10px">
-                                            {x[1].clone()} </div>
-                                        <div style="width:10%;padding-top:10px;padding-bottom:10px;color:white;">
+                                     <div style="width:100%; 
+                                                height:auto; 
+                                                background:#3d3d3d;
+                                                color:white;">
+                                        <div style="width:calc(90% - 20px);
+                                                    background-color:#000000;
+                                                    color:#ffffff;
+                                                    margin:0px;
+                                                    overflow:hidden;
+                                                    text-overflow:ellipsis;
+                                                    height:fit-content;
+                                                    padding:10px">
+                                            {x[1].clone()} 
+                                        </div>
+                                        <div style="width:10%;
+                                                    padding-top:10px;
+                                                    padding-bottom:10px;
+                                                    color:white;">
                                             "V"
                                         </div>
                                     </div>
@@ -74,7 +99,13 @@ fn Essen(id: String) -> impl IntoView {
                          }
                          view! {
                              <td style=style>
-                                 <p style="background-color:#000000; color:#ffffff; margin:0px; width:calc(100% - 20px);overflow:hidden; text-overflow:ellipsis;padding:10px;">
+                                 <p style="background-color:#000000;
+                                            color:#ffffff;
+                                            margin:0px;
+                                            width:calc(100% - 20px);
+                                            overflow:hidden;
+                                            text-overflow:ellipsis;
+                                            padding:10px;">
                                     {x[1].clone()}
                                  </p>
                              </td>
@@ -91,17 +122,20 @@ fn Essen(id: String) -> impl IntoView {
 pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
     let mut today = chrono::Local::now().format("%d.%m.%Y").to_string();
     let _time = chrono::Local::now().format("%H:%M").to_string();
-    let hour = chrono::Local::now().format("%H").to_string().parse::<i32>().map_err(|e| {
+    let hour = chrono::Local::now().format("%H").to_string()
+        .parse::<i32>().map_err(|e| {
         console_log(&format!("{:?}", e));
         JsValue::from_str("error")
     })?;
-    let minute = chrono::Local::now().format("%M").to_string().parse::<i32>().map_err(|e| {
+    let minute = chrono::Local::now().format("%M").to_string()
+        .parse::<i32>().map_err(|e| {
         console_log(&format!("{:?}", e));
         JsValue::from_str("error")
     })?;
 
 
-    let weekday = chrono::Local::now().format("%u").to_string().parse::<i32>().map_err(|e| {
+    let weekday = chrono::Local::now().format("%u").to_string()
+        .parse::<i32>().map_err(|e| {
         console_log(&format!("{:?}", e));
         JsValue::from_str("error")
     })?;
@@ -169,14 +203,16 @@ pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
 pub async fn get_menu(id: String) -> String {
     let mut day = chrono::Local::now().format("%Y-%m-%d").to_string();
     let _time = chrono::Local::now().format("%H:%M").to_string();
-    let hour = match chrono::Local::now().format("%H").to_string().parse:: <i32>() {
+    let hour = match chrono::Local::now().format("%H").to_string()
+        .parse:: <i32>() {
         Ok(x) => x,
         Err(e) => {
             console_log(&format!("{:?}", e));
             return "mensa is closed".to_string();
         }
     };
-    let minute = match chrono::Local::now().format("%M").to_string().parse:: <i32>() {
+    let minute = match chrono::Local::now().format("%M").to_string()
+        .parse:: <i32>() {
         Ok(x) => x,
         Err(e) => {
             console_log(&format!("{:?}", e));
@@ -184,7 +220,8 @@ pub async fn get_menu(id: String) -> String {
         }
     };
 
-    let weekday = match chrono::Local::now().format("%u").to_string().parse:: <i32>() {
+    let weekday = match chrono::Local::now().format("%u").to_string()
+        .parse:: <i32>() {
         Ok(x) => x,
         Err(e) => {
             console_log(&format!("{:?}", e));
@@ -232,41 +269,45 @@ pub async fn get_menu(id: String) -> String {
         }
     };
 
-
-
     let mut essen = String::new();
     for i in 0..text.matches("name").count() {
-        let essen_name = text.split("name\":").collect::<Vec<_>>()[i + 1]
+        let essen_name = text.split("name\":")
+            .collect::<Vec<_>>()[i + 1]
             .split(',')
             .collect::<Vec<_>>()[0]
             .replace('\"', "");
 
-        let essen_category = text.split("category\":").collect::<Vec<_>>()[i + 1]
+        let essen_category = text.split("category\":")
+            .collect::<Vec<_>>()[i + 1]
             .split(',')
             .collect::<Vec<_>>()[0]
             .replace('\"', "");
-        let is_vegan = text.split("notes\":").collect::<Vec<_>>()[i + 1].contains("vegan");
-        console_log(&essen_category);
-        console_log(
-            &get_food_pic(essen_category.clone())
-                .await
-                .unwrap()
-                .as_string()
-                .unwrap()
-                .to_string(),
-        );
-        let pic_url = match get_food_pic(essen_category.clone()).await.unwrap().as_string() {
-            Some(x) => x,
-            None => "mensa is closed".to_string(),
+        let is_vegan = text.split("notes\":").collect::<Vec<_>>()[i + 1]
+            .contains("vegan");
+        let pic_url = match get_food_pic(essen_category.clone()).await {
+            Ok(x) => x.as_string(),
+            Err(e) => {
+                console_log(&format!("{:?}", e));
+                return "mensa is closed".to_string();
+            }
         };
+
+        let pic_url = match pic_url {
+            Some(x) => x,
+            None => {
+                console_log("pic_url is None");
+                return "mensa is closed".to_string();
+            }
+        };
+
         if pic_url.contains(essen_category.as_str()) {
-        console_log(&pic_url);
-        console_log("true");
-        essen.push_str(&format!("{} && {} && {} && {}\n",essen_category, essen_name, pic_url, is_vegan));
+            essen.push_str(
+                &format!("{} && {} && {} && {}\n"
+                         ,essen_category, essen_name, pic_url, is_vegan
+                         ));
         }else{
             return "mensa is closed".to_string();
         }
     }
-    console_log(&essen);
     essen
 }
