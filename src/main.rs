@@ -4,8 +4,12 @@ use std::time::Duration;
 mod cal;
 mod mensa;
 mod trains;
+mod progress;
 
 fn main() {
+    spawn_local(async move {
+        cal::memes().await;
+    });
     leptos::mount_to_body(move || {
         view! {
             <div style="height:100vh; width:80vw">
@@ -13,11 +17,17 @@ fn main() {
                     <Notification_Bar/>
                 </div>
                 <div style="height:75vh; width:100%;">
-                  <trains::App/>
+                    <trains::App/>
                 </div>
-                <div style="height:20vh; width:100%;">
-                  <mensa::App2/>
+                <div style="height:calc(20vh - 5px); width:100%;">
+                    <mensa::App2/>
                 </div>
+                <div style="height:5px; width:100%;">
+                    <progress::App/>
+                </div>
+            </div>
+            <div style="height:100vh; width:20vw">
+                <cal::App/>
             </div>
         }
     })
@@ -29,8 +39,7 @@ fn Notification_Bar() -> impl IntoView {
 
     set_interval(
         move || {
-            let time = chrono::Local::now()
-                .format("%d.%m.%Y %H:%M").to_string();
+            let time = chrono::Local::now().format("%d.%m.%Y   %H:%M").to_string();
             set_localtime.set(time);
         },
         Duration::from_secs(1),

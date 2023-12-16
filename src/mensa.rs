@@ -249,19 +249,20 @@ pub async fn get_menu(id: String) -> String {
             .format("%Y-%m-%d")
             .to_string();
     }
-    let text = reqwest::get(format!(
-        "https://openmensa.org/api/v2/canteens/{}/days/{}/meals",
-        id, day
-    ))
-    .await;
-    let text = match text {
-        Ok(x) => x.text().await,
+    let text = match reqwest::Client::new().get(format!("https://openmensa.org/api/v2/canteens/{}/days/{}/meals",id,day)).send().await {
+        Ok(x) => x,
         Err(e) => {
             console_log(&format!("{:?}", e));
             return "mensa is closed".to_string();
         }
     };
-    let text = match text {
+
+
+    if text.status().as_u16() != 200 {
+        return "mensa is closed".to_string();
+    }
+
+    let text = match text.text().await {
         Ok(x) => x,
         Err(e) => {
             console_log(&format!("{:?}", e));
