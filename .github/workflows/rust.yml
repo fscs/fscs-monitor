@@ -1,14 +1,9 @@
-name: Rust
-
+name: Continuous deployment
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
-
-env:
-  CARGO_TERM_COLOR: always
+  workflow_run:
+    branches: [main]
+    workflows: [Continuous integration]
+    types: [completed]
 
 jobs:
   release:
@@ -18,17 +13,16 @@ jobs:
         with:
           toolchain: stable
           target: wasm32-unknown-unknown
-          
+
       - uses: jetli/trunk-action@v0.1.0
       - uses: jetli/wasm-bindgen-action@v0.1.0
 
       - uses: actions/checkout@v2
 
-      - run: cargo install --path .
-
-      - run: trunk build
+      - run: trunk build --release
 
       - uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: $
           publish_dir: ./dist
