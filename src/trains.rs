@@ -106,7 +106,7 @@ fn Station(id: String) -> impl IntoView {
                          return view! {
                              <tr>
                                  <th style="color:#ff0; text-align:left;">{x[0].clone()}</th>
-                                 <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#ff0000; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
+                                 <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#ff0; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
                                  <th style="color:#ff0; text-align:right;">{x[2].clone()}</th>
                              </tr>
                          }
