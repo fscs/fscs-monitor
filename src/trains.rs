@@ -1,4 +1,4 @@
-use leptos::{*, leptos_dom::logging::console_log};
+use leptos::*;
 use serde_json::Value;
 use std::time::Duration;
 use wasm_bindgen::prelude::*;

@@ -1,6 +1,6 @@
 use chrono::DateTime;
 use leptos::{
-    component, create_signal, leptos_dom::logging::console_log, set_interval, view, IntoView,
+    component, create_signal, set_interval, view, IntoView,
     SignalGet, SignalSet,
 };
 use std::time::Duration;
@@ -18,11 +18,6 @@ struct Event {
     frequency: String,
 }
 
-struct Semester {
-    start: chrono::NaiveDate,
-    end: chrono::NaiveDate,
-    name: String,
-}
 
 
 #[wasm_bindgen]
@@ -39,7 +34,7 @@ pub async fn memes() -> String {
 
     let current_semester = progress::get_current_semester().await;
     let current_semester = current_semester.as_string().unwrap();
-    let current_semester: Semester = Semester {
+    let current_semester: progress::Semester = progress::Semester {
         start: chrono::NaiveDate::parse_from_str(
             &current_semester.split("&&").collect::<Vec<_>>()[1],
             "%Y-%m-%d",

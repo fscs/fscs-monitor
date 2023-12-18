@@ -1,6 +1,4 @@
-use chrono::TimeZone;
 use leptos::{*, leptos_dom::logging::console_log};
-use serde_json::Value;
 use wasm_bindgen_futures::spawn_local;
 use std::time::Duration;
 use wasm_bindgen::prelude::*;
@@ -61,10 +59,10 @@ pub async fn get_progress() -> f64 {
     return 0.0;
 }
 
-struct Semester {
-    start: chrono::NaiveDate,
-    end: chrono::NaiveDate,
-    name: String,
+pub struct Semester {
+    pub start: chrono::NaiveDate,
+    pub end: chrono::NaiveDate,
+    pub name: String,
 }
 
 pub async fn get_current_semester() -> JsValue{

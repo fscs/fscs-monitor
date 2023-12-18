@@ -1,4 +1,4 @@
-use leptos::{leptos_dom::logging::console_log, *};
+use leptos::*;
 use std::time::Duration;
 use wasm_bindgen::prelude::*;
 #[component]
@@ -122,17 +122,17 @@ pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
     let mut today = chrono::Local::now().format("%d.%m.%Y").to_string();
     let _time = chrono::Local::now().format("%H:%M").to_string();
     let hour = chrono::Local::now().format("%H").to_string()
-        .parse::<i32>().map_err(|e| {
+        .parse::<i32>().map_err(|_e| {
         JsValue::from_str("error")
     })?;
     let minute = chrono::Local::now().format("%M").to_string()
-        .parse::<i32>().map_err(|e| {
+        .parse::<i32>().map_err(|_e| {
         JsValue::from_str("error")
     })?;
 
 
     let weekday = chrono::Local::now().format("%u").to_string()
-        .parse::<i32>().map_err(|e| {
+        .parse::<i32>().map_err(|_e| {
         JsValue::from_str("error")
     })?;
 
@@ -142,7 +142,7 @@ pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
             .format("%u")
             .to_string()
             .parse::<i64>()
-            .map_err(|e| {
+            .map_err(|_e| {
                 JsValue::from_str("error")
             })?;
         today = chrono::Local::now()
@@ -163,13 +163,13 @@ pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
         "https://www.stw-d.de/gastronomie/speiseplaene/essenausgabe-sued-duesseldorf/".to_string();
     let text = match reqwest::get(url).await {
         Ok(x) => x.text().await,
-        Err(e) => {
+        Err(_e) => {
             return Ok(JsValue::from_str("error"));
         }
     };
     let text = match text {
         Ok(x) => x,
-        Err(e) => {
+        Err(_e) => {
             return Ok(JsValue::from_str("error"));
         }
     };
@@ -199,14 +199,14 @@ pub async fn get_menu(id: String) -> String {
     let hour = match chrono::Local::now().format("%H").to_string()
         .parse:: <i32>() {
         Ok(x) => x,
-        Err(e) => {
+        Err(_e) => {
             return "mensa is closed".to_string();
         }
     };
     let minute = match chrono::Local::now().format("%M").to_string()
         .parse:: <i32>() {
         Ok(x) => x,
-        Err(e) => {
+        Err(_e) => {
             return "mensa is closed".to_string();
         }
     };
@@ -214,7 +214,7 @@ pub async fn get_menu(id: String) -> String {
     let weekday = match chrono::Local::now().format("%u").to_string()
         .parse:: <i32>() {
         Ok(x) => x,
-        Err(e) => {
+        Err(_e) => {
             return "mensa is closed".to_string();
         }
     };
@@ -241,7 +241,7 @@ pub async fn get_menu(id: String) -> String {
     }
     let text = match reqwest::Client::new().get(format!("https://openmensa.org/api/v2/canteens/{}/days/{}/meals",id,day)).send().await {
         Ok(x) => x,
-        Err(e) => {
+        Err(_e) => {
             return "mensa is closed".to_string();
         }
     };
@@ -253,7 +253,7 @@ pub async fn get_menu(id: String) -> String {
 
     let text = match text.text().await {
         Ok(x) => x,
-        Err(e) => {
+        Err(_e) => {
             return "mensa is closed".to_string();
         }
     };
@@ -275,7 +275,7 @@ pub async fn get_menu(id: String) -> String {
             .contains("vegan");
         let pic_url = match get_food_pic(essen_category.clone()).await {
             Ok(x) => x.as_string(),
-            Err(e) => {
+            Err(_e) => {
                 return "mensa is closed".to_string();
             }
         };
