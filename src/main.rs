@@ -4,10 +4,12 @@ use std::time::Duration;
 mod cal;
 mod mensa;
 mod trains;
+
 mod progress;
 mod legend;
 
 fn main() {
+
     leptos::mount_to_body(move || {
         view! {
             <div style="height:100vh; width:80vw">
@@ -15,6 +17,7 @@ fn main() {
                     <Notification_Bar/>
                 </div>
                 <div style="height:75vh; width:100%;">
+
                     <trains::App/>
                 </div>
                 <div style="height:calc(20vh - 20px); width:100%;">
@@ -32,6 +35,7 @@ fn main() {
                     <legend::App />
                 </div>
             </div>
+
         }
     })
 }

@@ -49,6 +49,7 @@ fn Station(id: String) -> impl IntoView {
             }
         };
 
+
         set_name.set(name);
     });
 
@@ -107,6 +108,7 @@ fn Station(id: String) -> impl IntoView {
                              <tr>
                                  <th style="color:#ff0; text-align:left;">{x[0].clone()}</th>
                                  <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#ff0; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
+
                                  <th style="color:#ff0; text-align:right;">{x[2].clone()}</th>
                              </tr>
                          }
@@ -178,7 +180,9 @@ struct Train {
     train_type: String,
     canceled: bool,
     onplanned: bool,
+
     delay: i32
+
 }
 
 #[wasm_bindgen]
@@ -189,6 +193,7 @@ pub async fn list(id: String) -> Result<String, JsValue> {
     if id.clone() == "20018249" {
         limit = 200;
     }
+
     let departures = match get_departures(id.clone(),limit).await {
         Ok(x) => x,
         Err(_) => {
@@ -218,6 +223,7 @@ pub async fn list(id: String) -> Result<String, JsValue> {
     while x < limit{
         let train = get_traindata(json.clone(), x as usize);
 
+
         let time = train.time;
         
         if train.canceled == false{
@@ -245,6 +251,7 @@ pub async fn list(id: String) -> Result<String, JsValue> {
     Ok(vec
         .iter()
         .map(|x| {
+
             if x.onplanned == true {
                 return format!(
                     "{} && {} && (+{}) {}m && {} && {}",
@@ -254,6 +261,7 @@ pub async fn list(id: String) -> Result<String, JsValue> {
             format!(
                 "{} && {} && {}min && {} && {}",
                 x.line, x.direction, x.time, x.canceled, "false"
+
             )
         })
         .collect::<Vec<_>>()
@@ -298,6 +306,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
 
 
 
+
     let est_day_train = json["departureList"][&id]["dateTime"]["day"]
         .to_string()
         .replace('\"', "");
@@ -322,6 +331,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 canceled: false,
                 onplanned: false,
                 delay: 0
+
             };
         }
     };
@@ -337,6 +347,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 canceled: false,
                 onplanned: false,
                 delay: 0
+
             };
         }
     };
@@ -355,6 +366,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             };
         }
     };
+
 
 
 
@@ -384,6 +396,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 canceled: false,
                 onplanned: false,
                 delay: 0
+
             };
         }
     };
@@ -414,6 +427,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 canceled: false,
                 onplanned: false,
                 delay: 0
+
             };
         }
     };
@@ -429,6 +443,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 canceled: false,
                 onplanned: false,
                 delay: 0
+
             };
         }
     };
@@ -444,6 +459,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 canceled: false,
                 onplanned: false,
                 delay: 0
+
             };
         }
     };
@@ -460,6 +476,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 canceled: false,
                 onplanned: false,
                 delay: 0
+
             };
         }
     };
@@ -493,7 +510,9 @@ fn get_traindata(json: Value, id: usize) -> Train {
         _onplanned = true;
     }
 
+
     let _delay = _real_times.parse::<i32>().unwrap() - _est_times.parse::<i32>().unwrap();
+
 
 
 
@@ -509,6 +528,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             +" ",
         time: _real_times.parse::<i32>().unwrap(),
         delay: _delay,
+
         train_type: json["departureList"][&id]["servingLine"]["name"]
             .to_string()
             .replace('\"', ""),
