@@ -220,17 +220,15 @@ pub async fn list(id: String) -> Result<String, JsValue> {
 
         let time = train.time;
         
-        if train.canceled == false{
-            if time >= 3 {
-                if id.clone() == "20018249" {
-                    if ((train.train_type == "S-Bahn") || (train.train_type == "Regionalzug"))
-                        && (time > 15)
-                    {
-                        vec.push(train);
-                    }
-                } else if !train.direction.contains("Uni") {
+        if !train.canceled && time >= 3 {
+            if id.clone() == "20018249" {
+                if ((train.train_type == "S-Bahn") || (train.train_type == "Regionalzug"))
+                    && (time > 15)
+                {
                     vec.push(train);
                 }
+            } else if !train.direction.contains("Uni") {
+                vec.push(train);
             }
         }
         x += 1;
@@ -245,7 +243,7 @@ pub async fn list(id: String) -> Result<String, JsValue> {
     Ok(vec
         .iter()
         .map(|x| {
-            if x.onplanned == true {
+            if x.onplanned {
                 return format!(
                     "{} && {} && (+{}) {}m && {} && {}",
                     x.line, x.direction, x.delay, x.time, x.canceled, "true"

@@ -36,12 +36,12 @@ pub async fn memes() -> String {
     let current_semester = current_semester.as_string().unwrap();
     let current_semester: progress::Semester = progress::Semester {
         start: chrono::NaiveDate::parse_from_str(
-            &current_semester.split("&&").collect::<Vec<_>>()[1],
+            current_semester.split("&&").collect::<Vec<_>>()[1],
             "%Y-%m-%d",
         )
         .unwrap(),
         end: chrono::NaiveDate::parse_from_str(
-            &current_semester.split("&&").collect::<Vec<_>>()[2],
+            current_semester.split("&&").collect::<Vec<_>>()[2],
             "%Y-%m-%d",
         )
         .unwrap(),
@@ -145,7 +145,7 @@ pub async fn memes() -> String {
         if event.frequency == "WEEKLY" {
             let mut date = event.start;
             while date.timestamp() < now {
-                date = date + chrono::Duration::weeks(1);
+                date += chrono::Duration::weeks(1);
             }
             event.start = date;
         }
@@ -153,7 +153,7 @@ pub async fn memes() -> String {
         if event.frequency == "MONTHLY" {
             let mut date = event.start;
             while date.timestamp() < now {
-                date = date + chrono::Duration::days(30);
+                date += chrono::Duration::days(30);
             }
             event.start = date;
         }
@@ -161,7 +161,7 @@ pub async fn memes() -> String {
         if event.frequency == "YEARLY" {
             let mut date = event.start;
             while date.timestamp() < now {
-                date = date + chrono::Duration::days(365);
+                date += chrono::Duration::days(365);
             }
             event.start = date;
         }
@@ -169,7 +169,7 @@ pub async fn memes() -> String {
         if event.frequency == "DAILY" {
             let mut date = event.start;
             while date.timestamp() < now {
-                date = date + chrono::Duration::days(1);
+                date += chrono::Duration::days(1);
             }
             event.start = date;
         }

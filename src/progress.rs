@@ -4,7 +4,7 @@ use std::time::Duration;
 use wasm_bindgen::prelude::*;
 #[component]
 pub fn App() -> impl IntoView {
-    return view! {
+    view! {
         <Progress/>
     }
 }
@@ -56,7 +56,7 @@ pub async fn get_progress() -> f64 {
     }
 
 
-    return 0.0;
+    0.0
 }
 
 pub struct Semester {
@@ -79,7 +79,7 @@ pub async fn get_current_semester() -> JsValue{
     }
 
 
-    return JsValue::from_str("No semester found");
+    JsValue::from_str("No semester found")
 
 }
 
@@ -142,6 +142,6 @@ pub async fn get_list_of_semesters() -> Vec<Semester>{
         string = string + &semesters[i].name.to_string() + "&&" + &semesters[i].start.to_string() + "&&" + &semesters[i].end.to_string() + "\n";
     }
 
-    return semesters;
+    semesters
 }
 
