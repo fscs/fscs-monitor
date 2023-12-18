@@ -7,12 +7,23 @@ use std::time::Duration;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 
+use crate::progress;
+
+
 struct Event {
     title: String,
     start: chrono::DateTime<chrono::Utc>,
     location: String,
     description: String,
+    frequency: String,
 }
+
+struct Semester {
+    start: chrono::NaiveDate,
+    end: chrono::NaiveDate,
+    name: String,
+}
+
 
 #[wasm_bindgen]
 pub async fn memes() -> String {
@@ -23,16 +34,37 @@ pub async fn memes() -> String {
             .into(),
         location: String::new(),
         description: String::new(),
+        frequency: String::new(),
     }];
 
-    let timestamp = chrono::Utc::now().timestamp();
+    let current_semester = progress::get_current_semester().await;
+    let current_semester = current_semester.as_string().unwrap();
+    let current_semester: Semester = Semester {
+        start: chrono::NaiveDate::parse_from_str(
+            &current_semester.split("&&").collect::<Vec<_>>()[1],
+            "%Y-%m-%d",
+        )
+        .unwrap(),
+        end: chrono::NaiveDate::parse_from_str(
+            &current_semester.split("&&").collect::<Vec<_>>()[2],
+            "%Y-%m-%d",
+        )
+        .unwrap(),
+        name: current_semester.split("&&").collect::<Vec<_>>()[0].to_string(),
+    };
+
+    let timestamp = current_semester.start.and_hms_opt(0, 0, 0).unwrap().timestamp();
+
+
 
     let url = format!("https://nextcloud.inphima.de/remote.php/dav/public-calendars/CAx5MEp7cGrQ6cEe?start={}&export=&componentType=VEVENT", timestamp);
 
     let resp = reqwest::get(url).await.unwrap();
     for i in resp.text().await.unwrap().split("UID:").collect::<Vec<_>>() {
-        console_log(i);
         let i = i.replace('\\', "");
+        
+        let now = chrono::Utc::now().timestamp();
+
         if vec.len() > 7 {
             break;
         }
@@ -43,6 +75,7 @@ pub async fn memes() -> String {
                 .unwrap()
                 .into(),
             description: String::new(),
+            frequency: String::new(),
         };
 
         if i.contains("SUMMARY:") {
@@ -50,20 +83,13 @@ pub async fn memes() -> String {
                 .split('\n')
                 .collect::<Vec<_>>()[0]
                 .to_string();
-            console_log(
-                i.split("SUMMARY:").collect::<Vec<_>>()[1]
-                    .split('\n')
-                    .collect::<Vec<_>>()[0],
-            );
         }
 
         if i.contains("DTSTART;TZID=Europe/Berlin:") {
-            console_log("test");
             let date = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
                 .split('\n')
                 .collect::<Vec<_>>()[0]
                 .to_string();
-            console_log(&date);
             //parse Date to DateTime 20230101T000000
             let date = format!("{}T{}Z", &date[0..8], &date[9..15]);
             let date = format!(
@@ -87,16 +113,10 @@ pub async fn memes() -> String {
                 "Z"
             );
 
-            console_log(&date);
+
+            //check if date is in the past
 
             event.start = DateTime::parse_from_rfc3339(&date).unwrap().into();
-            console_log(
-                &date
-                    .parse::<DateTime<chrono::Utc>>()
-                    .unwrap()
-                    .format("%d.%m.%Y %H:%M")
-                    .to_string(),
-            );
         }
 
         event.location = "TBA".to_string();
@@ -109,11 +129,6 @@ pub async fn memes() -> String {
                 .split('|')
                 .collect::<Vec<_>>()[0]
                 .to_string();
-            console_log(
-                i.split("LOCATION:").collect::<Vec<_>>()[1]
-                    .split('\n')
-                    .collect::<Vec<_>>()[0],
-            );
         }
 
         if i.contains("DESCRIPTION:") {
@@ -121,14 +136,52 @@ pub async fn memes() -> String {
                 .split('\n')
                 .collect::<Vec<_>>()[0]
                 .to_string();
-            console_log(
-                i.split("DESCRIPTION:").collect::<Vec<_>>()[1]
-                    .split('\n')
-                    .collect::<Vec<_>>()[0],
-            );
         }
 
-        console_log(&event.title);
+        if i.contains("RRULE:FREQ=") {
+            event.frequency = i.split("RRULE:FREQ=").collect::<Vec<_>>()[1]
+                .split(';')
+                .collect::<Vec<_>>()[0]
+                .to_string();
+        }
+
+
+        //get next date if event is recurring
+        if event.frequency == "WEEKLY" {
+            let mut date = event.start;
+            while date.timestamp() < now {
+                date = date + chrono::Duration::weeks(1);
+            }
+            event.start = date;
+        }
+
+        if event.frequency == "MONTHLY" {
+            let mut date = event.start;
+            while date.timestamp() < now {
+                date = date + chrono::Duration::days(30);
+            }
+            event.start = date;
+        }
+
+        if event.frequency == "YEARLY" {
+            let mut date = event.start;
+            while date.timestamp() < now {
+                date = date + chrono::Duration::days(365);
+            }
+            event.start = date;
+        }
+
+        if event.frequency == "DAILY" {
+            let mut date = event.start;
+            while date.timestamp() < now {
+                date = date + chrono::Duration::days(1);
+            }
+            event.start = date;
+        }
+
+        if event.start.timestamp() < now {
+            continue;
+        }
 
         if !event.title.is_empty() {
             vec.push(event);
@@ -152,8 +205,6 @@ pub async fn memes() -> String {
         + " && "
         + &vec[1].description
         + "\n";
-    console_log("test");
-    console_log(&string.clone());
 
     for i in 2..vec.len() {
         if vec[i].title != vec[i - 1].title {
@@ -169,8 +220,6 @@ pub async fn memes() -> String {
         }
     }
 
-    console_log("test");
-    console_log(&string.clone());
     string
 }
 
@@ -188,10 +237,6 @@ pub fn App() -> impl IntoView {
 
         set_events.set(tmp);
 
-        for i in events.split('\n').collect::<Vec<_>>() {
-            console_log(i);
-        }
-        console_log(&events);
     });
 
     set_interval(
@@ -207,9 +252,6 @@ pub fn App() -> impl IntoView {
 
                 set_events.set(tmp);
 
-                for i in events.split('\n').collect::<Vec<_>>() {
-                    console_log(i);
-                }
             });
         },
         Duration::from_secs(60 * 30),
