@@ -7,7 +7,9 @@ use std::time::Duration;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 
+
 use crate::progress;
+
 
 
 struct Event {
@@ -32,6 +34,7 @@ pub async fn memes() -> String {
         frequency: String::new(),
     }];
 
+
     let current_semester = progress::get_current_semester().await;
     let current_semester = current_semester.as_string().unwrap();
     let current_semester: progress::Semester = progress::Semester {
@@ -52,13 +55,16 @@ pub async fn memes() -> String {
 
 
 
+
     let url = format!("https://nextcloud.inphima.de/remote.php/dav/public-calendars/CAx5MEp7cGrQ6cEe?start={}&export=&componentType=VEVENT", timestamp);
 
     let resp = reqwest::get(url).await.unwrap();
     for i in resp.text().await.unwrap().split("UID:").collect::<Vec<_>>() {
+
         let i = i.replace('\\', "");
         
         let now = chrono::Utc::now().timestamp();
+
 
         if vec.len() > 7 {
             break;
@@ -78,13 +84,16 @@ pub async fn memes() -> String {
                 .split('\n')
                 .collect::<Vec<_>>()[0]
                 .to_string();
+
         }
 
         if i.contains("DTSTART;TZID=Europe/Berlin:") {
+
             let date = i.split("DTSTART;TZID=Europe/Berlin:").collect::<Vec<_>>()[1]
                 .split('\n')
                 .collect::<Vec<_>>()[0]
                 .to_string();
+
             //parse Date to DateTime 20230101T000000
             let date = format!("{}T{}Z", &date[0..8], &date[9..15]);
             let date = format!(
@@ -109,9 +118,11 @@ pub async fn memes() -> String {
             );
 
 
+
             //check if date is in the past
 
             event.start = DateTime::parse_from_rfc3339(&date).unwrap().into();
+
         }
 
         event.location = "TBA".to_string();
@@ -124,6 +135,7 @@ pub async fn memes() -> String {
                 .split('|')
                 .collect::<Vec<_>>()[0]
                 .to_string();
+
         }
 
         if i.contains("DESCRIPTION:") {
@@ -131,6 +143,7 @@ pub async fn memes() -> String {
                 .split('\n')
                 .collect::<Vec<_>>()[0]
                 .to_string();
+
         }
 
         if i.contains("RRULE:FREQ=") {
@@ -178,6 +191,7 @@ pub async fn memes() -> String {
             continue;
         }
 
+
         if !event.title.is_empty() {
             vec.push(event);
         }
@@ -200,6 +214,7 @@ pub async fn memes() -> String {
         + " && "
         + &vec[1].description
         + "\n";
+
 
     for i in 2..vec.len() {
         if vec[i].title != vec[i - 1].title {
@@ -232,6 +247,7 @@ pub fn App() -> impl IntoView {
 
         set_events.set(tmp);
 
+
     });
 
     set_interval(
@@ -246,6 +262,7 @@ pub fn App() -> impl IntoView {
                 }
 
                 set_events.set(tmp);
+
 
             });
         },

@@ -19,9 +19,11 @@ fn Essen(id: String) -> impl IntoView {
         let list = list.await;
         set_state.set(
             list.split('\n')
+
                 .map(|x| 
                      x.split(" && ").map(|x| x.to_string())
                      .collect::<Vec<_>>())
+
                 .collect::<Vec<_>>(),
         );
     });
@@ -34,9 +36,11 @@ fn Essen(id: String) -> impl IntoView {
                 let list = list.await;
                 set_state.set(
                     list.split('\n')
+
                         .map(|x| 
                              x.split(" && ").map(|x| x.to_string())
                              .collect::<Vec<_>>())
+
                         .collect::<Vec<_>>(),
                 );
             });
@@ -48,6 +52,7 @@ fn Essen(id: String) -> impl IntoView {
         <table class="center" id="mensa" >
             <tr>
             {move || state.get().iter().map(move |x| {
+
                 if x[0] == "mensa is closed" {
                     return view! {
                         <td class="error">
@@ -98,6 +103,7 @@ fn Essen(id: String) -> impl IntoView {
                          }
                          view! {
                              <td style=style>
+
                                  <p style="background-color:#000000;
                                             color:#ffffff;
                                             margin:0px;
@@ -105,6 +111,7 @@ fn Essen(id: String) -> impl IntoView {
                                             overflow:hidden;
                                             text-overflow:ellipsis;
                                             padding:10px;">
+
                                     {x[1].clone()}
                                  </p>
                              </td>
@@ -121,6 +128,7 @@ fn Essen(id: String) -> impl IntoView {
 pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
     let mut today = chrono::Local::now().format("%d.%m.%Y").to_string();
     let _time = chrono::Local::now().format("%H:%M").to_string();
+
     let hour = chrono::Local::now().format("%H").to_string()
         .parse::<i32>().map_err(|_e| {
         JsValue::from_str("error")
@@ -129,6 +137,7 @@ pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
         .parse::<i32>().map_err(|_e| {
         JsValue::from_str("error")
     })?;
+
 
 
     let weekday = chrono::Local::now().format("%u").to_string()
@@ -196,6 +205,7 @@ pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
 pub async fn get_menu(id: String) -> String {
     let mut day = chrono::Local::now().format("%Y-%m-%d").to_string();
     let _time = chrono::Local::now().format("%H:%M").to_string();
+
     let hour = match chrono::Local::now().format("%H").to_string()
         .parse:: <i32>() {
         Ok(x) => x,
@@ -210,6 +220,7 @@ pub async fn get_menu(id: String) -> String {
             return "mensa is closed".to_string();
         }
     };
+
 
     let weekday = match chrono::Local::now().format("%u").to_string()
         .parse:: <i32>() {
@@ -239,6 +250,7 @@ pub async fn get_menu(id: String) -> String {
             .format("%Y-%m-%d")
             .to_string();
     }
+
     let text = match reqwest::Client::new().get(format!("https://openmensa.org/api/v2/canteens/{}/days/{}/meals",id,day)).send().await {
         Ok(x) => x,
         Err(_e) => {
@@ -296,5 +308,6 @@ pub async fn get_menu(id: String) -> String {
             return "mensa is closed".to_string();
         }
     }
+
     essen
 }
