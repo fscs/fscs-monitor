@@ -5,26 +5,37 @@ mod cal;
 mod mensa;
 mod trains;
 
+mod progress;
+mod legend;
+
 fn main() {
-    spawn_local(async move {
-        cal::memes().await;
-    });
+
     leptos::mount_to_body(move || {
         view! {
-            <div style="height:100vh; width:80vw">
+            <div style="height:100vh; width:85vw">
                 <div style="height:5vh; width:100%">
                     <Notification_Bar/>
                 </div>
                 <div style="height:75vh; width:100%;">
-                  <trains::App/>
+
+                    <trains::App/>
                 </div>
-                <div style="height:20vh; width:100%;">
-                  <mensa::App2/>
+                <div style="height:calc(20vh - 20px); width:100%;">
+                    <mensa::App2/>
+                </div>
+                <div style="height:20px; width:100%;">
+                    <progress::App/>
                 </div>
             </div>
-            <div style="height:100vh; width:20vw">
-                <cal::App/>
+            <div style="height:100vh; width: calc(15vw - 3px); border-left:2px solid">
+                <div style="height:80vh; width:100%">
+                    <cal::App/>
+                </div>
+                <div style="width:100%;background-color:dark-grey; border-top:2px solid">
+                    <legend::App />
+                </div>
             </div>
+
         }
     })
 }

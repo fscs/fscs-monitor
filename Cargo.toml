@@ -17,6 +17,8 @@ html5ever = "0.26.0"
 tendril = "0.4.3"
 html_parser = "0.7.0"
 leptos_animation = "0.4.0"
+scraper = "0.18.1"
+regex = "1.10.2"
 
 
 

@@ -1,4 +1,4 @@
-use leptos::{*, leptos_dom::logging::console_log};
+use leptos::*;
 use serde_json::Value;
 use std::time::Duration;
 use wasm_bindgen::prelude::*;
@@ -48,7 +48,7 @@ fn Station(id: String) -> impl IntoView {
                 return;
             }
         };
-        console_log(&list);
+
 
         set_name.set(name);
     });
@@ -96,7 +96,7 @@ fn Station(id: String) -> impl IntoView {
                          <tr class="hidden">
                          </tr>
                      }
-                 }else if x[1].len() >= 27{
+                 }else if x[1].len() >= 23{
                      if x[3].clone() == "true" {
                          return view! {
                              <tr class="hidden">
@@ -107,7 +107,7 @@ fn Station(id: String) -> impl IntoView {
                          return view! {
                              <tr>
                                  <th style="color:#ff0; text-align:left;">{x[0].clone()}</th>
-                                 <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#ff0000; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
+                                 <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#ff0; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
                                  <th style="color:#ff0; text-align:right;">{x[2].clone()}</th>
                              </tr>
                          }
@@ -179,6 +179,9 @@ struct Train {
     train_type: String,
     canceled: bool,
     onplanned: bool,
+
+    delay: i32
+
 }
 
 #[wasm_bindgen]
@@ -189,7 +192,7 @@ pub async fn list(id: String) -> Result<String, JsValue> {
     if id.clone() == "20018249" {
         limit = 200;
     }
-    console_log(&id);
+
     let departures = match get_departures(id.clone(),limit).await {
         Ok(x) => x,
         Err(_) => {
@@ -212,30 +215,25 @@ pub async fn list(id: String) -> Result<String, JsValue> {
         }
     };
 
-    console_log(&json.to_string());
 
-    console_log("meme");
 
 
     let mut x = 0;
     while x < limit{
         let train = get_traindata(json.clone(), x as usize);
-        console_log(&train.line);
-        console_log(&train.direction.to_string());
+
 
         let time = train.time;
         
-        if train.canceled == false{
-            if time >= 3 {
-                if id.clone() == "20018249" {
-                    if ((train.train_type == "S-Bahn") || (train.train_type == "Regionalzug"))
-                        && (time > 15)
-                    {
-                        vec.push(train);
-                    }
-                } else if !train.direction.contains("Uni") {
+        if !train.canceled && time >= 3 {
+            if id.clone() == "20018249" {
+                if ((train.train_type == "S-Bahn") || (train.train_type == "Regionalzug"))
+                    && (time > 15)
+                {
                     vec.push(train);
                 }
+            } else if !train.direction.contains("Uni") {
+                vec.push(train);
             }
         }
         x += 1;
@@ -250,9 +248,16 @@ pub async fn list(id: String) -> Result<String, JsValue> {
     Ok(vec
         .iter()
         .map(|x| {
+            if x.onplanned {
+                return format!(
+                    "{} && {} && (+{}) {}m && {} && {}",
+                    x.line, x.direction, x.delay, x.time, x.canceled, "true"
+                );
+            }
             format!(
                 "{} && {} && {}min && {} && {}",
-                x.line, x.direction, x.time, x.canceled, x.onplanned
+                x.line, x.direction, x.time, x.canceled, "false"
+
             )
         })
         .collect::<Vec<_>>()
@@ -295,7 +300,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
     }
 
 
-    console_log(&path);
+
 
 
     let est_day_train = json["departureList"][&id]["dateTime"]["day"]
@@ -321,6 +326,8 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
+                delay: 0
+
             };
         }
     };
@@ -335,6 +342,8 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
+                delay: 0
+
             };
         }
     };
@@ -349,13 +358,14 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
+                delay: 0
             };
         }
     };
 
 
 
-    console_log(&json["departureList"][&id][path].to_string());
+
     let day_train = json["departureList"][&id][path]["day"]
         .to_string()
         .replace('\"', "");
@@ -381,6 +391,8 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
+                delay: 0
+
             };
         }
     };
@@ -395,6 +407,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
+                delay: 0
             };
         }
     };
@@ -409,6 +422,8 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
+                delay: 0
+
             };
         }
     };
@@ -423,6 +438,8 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
+                delay: 0
+
             };
         }
     };
@@ -437,6 +454,8 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
+                delay: 0
+
             };
         }
     };
@@ -452,6 +471,8 @@ fn get_traindata(json: Value, id: usize) -> Train {
                 train_type: String::new(),
                 canceled: false,
                 onplanned: false,
+                delay: 0
+
             };
         }
     };
@@ -484,14 +505,13 @@ fn get_traindata(json: Value, id: usize) -> Train {
     if (_real_times.parse::<i32>().unwrap() - _est_times.parse::<i32>().unwrap()) > 5 {
         _onplanned = true;
     }
-    console_log(&json["departureList"][&id]["servingLine"]["number"].to_string());
-    console_log("times");
-    console_log(&_est_times);
-    console_log(&_real_times);
+
+
+    let _delay = _real_times.parse::<i32>().unwrap() - _est_times.parse::<i32>().unwrap();
 
 
 
-    console_log(&_real_times);
+
 
     Train {
         line: json["departureList"][&id]["servingLine"]["number"]
@@ -503,6 +523,8 @@ fn get_traindata(json: Value, id: usize) -> Train {
             .replace('\"', "")
             +" ",
         time: _real_times.parse::<i32>().unwrap(),
+        delay: _delay,
+
         train_type: json["departureList"][&id]["servingLine"]["name"]
             .to_string()
             .replace('\"', ""),
@@ -514,3 +536,4 @@ fn get_traindata(json: Value, id: usize) -> Train {
 
 
 }
+
