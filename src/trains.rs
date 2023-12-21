@@ -96,7 +96,7 @@ fn Station(id: String) -> impl IntoView {
                          <tr class="hidden">
                          </tr>
                      }
-                 }else if x[1].len() >= 27{
+                 }else if x[1].len() >= 23{
                      if x[3].clone() == "true" {
                          return view! {
                              <tr class="hidden">
@@ -108,7 +108,6 @@ fn Station(id: String) -> impl IntoView {
                              <tr>
                                  <th style="color:#ff0; text-align:left;">{x[0].clone()}</th>
                                  <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#ff0; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
-
                                  <th style="color:#ff0; text-align:right;">{x[2].clone()}</th>
                              </tr>
                          }
