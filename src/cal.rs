@@ -1,17 +1,13 @@
 use chrono::DateTime;
 use leptos::{
-    component, create_signal, set_interval, view, IntoView,
-    SignalGet, SignalSet,
+    component, create_signal, leptos_dom::logging::console_log, set_interval, view, IntoView, SignalGet, SignalSet
 };
 use std::time::Duration;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::spawn_local;
 
+use wasm_bindgen::prelude::wasm_bindgen;
+use leptos::spawn_local;
 
 use crate::progress;
-
-
-
 struct Event {
     title: String,
     start: chrono::DateTime<chrono::Utc>,
@@ -57,6 +53,7 @@ pub async fn memes() -> String {
 
 
     let url = format!("https://nextcloud.inphima.de/remote.php/dav/public-calendars/CAx5MEp7cGrQ6cEe?start={}&export=&componentType=VEVENT", timestamp);
+
 
     let resp = reqwest::get(url).await.unwrap();
     for i in resp.text().await.unwrap().split("UID:").collect::<Vec<_>>() {
@@ -230,6 +227,8 @@ pub async fn memes() -> String {
         }
     }
 
+    console_log(&string);
+
     string
 }
 
@@ -240,6 +239,7 @@ pub fn App() -> impl IntoView {
         let events = memes().await;
 
         let mut tmp = vec![vec![String::new()]];
+
 
         for i in events.split('\n').collect::<Vec<_>>() {
             tmp.push(i.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>());
@@ -284,25 +284,11 @@ pub fn App() -> impl IntoView {
                   }
               }else{
                   if x[2].len() > 17 {
-                      if x[0].len() > 20 {
-                          return view! {
-                              <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
-                              {x[1].clone()}
-                              </li>
-                                  <li style="width:100%; font-size:1.8vw;overflow:hidden; padding-bottom:10px">
-
-                                  <div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span></div>
-                                  </li><li style="padding-bottom:30px; font-size:1.3vw">
-                                  {x[2].clone()}
-                              </li>
-
-                          };
-                      }
                       return view! {
                           <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
                           {x[1].clone()}
                           </li>
-                              <li style="width:100%; font-size:1.8vw;padding-bottom:10px">
+                              <li style="width:100%; font-size:1.8vw;padding-bottom:10px; white-space:initial">
 
                               {x[0].clone()}
                           </li><li style="padding-bottom:30px; font-size:1.3vw">
@@ -311,25 +297,11 @@ pub fn App() -> impl IntoView {
 
                       };
                   }
-                  if x[0].len() > 20 {
-                      return view! {
-                          <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
-                          {x[1].clone()}
-                          </li>
-                              <li style="width:100%; font-size:1.8vw;overflow:hidden; padding-bottom:10px">
-
-                              <div style="width:fit-content; overflow:hidden" class="scroll"><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span><span>{x[0].clone()+" "}</span></div>
-                              </li><li style="padding-bottom:30px; font-size:1.3vw">
-                              {x[2].clone()}
-                          </li>
-
-                      };
-                  }
                   view! {
                       <li style="width:100%; font-size:1.8vw; color: #00cc00; padding-bottom:0px">
                       {x[1].clone()}
                       </li>
-                          <li style="width:100%; font-size:1.8vw;padding-bottom:10px">
+                          <li style="width:100%; font-size:1.8vw;padding-bottom:10px; white-space:initial">
 
                           {x[0].clone()}
                       </li><li style="padding-bottom:30px; font-size:1.3vw">

@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::{leptos_dom::logging::console_log, *};
 use std::time::Duration;
 use wasm_bindgen::prelude::*;
 #[component]
@@ -190,7 +190,12 @@ pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
         .collect::<Vec<_>>();
 
     for i in 0..essen.len() {
+        console_log(essen[i]);
+    }
+
+    for i in 0..essen.len() {
         if essen[i].contains(&id) {
+
             let url = essen[i].split("url(").collect::<Vec<_>>()[1]
                 .split(')')
                 .collect::<Vec<_>>()[0]
@@ -251,6 +256,7 @@ pub async fn get_menu(id: String) -> String {
             .to_string();
     }
 
+    console_log(&format!("Test:  https://openmensa.org/api/v2/canteens/{}/days/{}/meals",id,day));
     let text = match reqwest::Client::new().get(format!("https://openmensa.org/api/v2/canteens/{}/days/{}/meals",id,day)).send().await {
         Ok(x) => x,
         Err(_e) => {
@@ -269,6 +275,9 @@ pub async fn get_menu(id: String) -> String {
             return "mensa is closed".to_string();
         }
     };
+    console_log("memesss");
+
+    console_log(&format!("Test: :{}",&text).to_string());
 
     let mut essen = String::new();
     for i in 0..text.matches("name").count() {
@@ -285,6 +294,10 @@ pub async fn get_menu(id: String) -> String {
             .replace('\"', "");
         let is_vegan = text.split("notes\":").collect::<Vec<_>>()[i + 1]
             .contains("vegan");
+
+        
+        console_log(&format!("Test: :{}",&essen_category).to_string());
+
         let pic_url = match get_food_pic(essen_category.clone()).await {
             Ok(x) => x.as_string(),
             Err(_e) => {
@@ -298,6 +311,9 @@ pub async fn get_menu(id: String) -> String {
                 return "mensa is closed".to_string();
             }
         };
+    
+        console_log("test");
+        console_log(&essen_category);
 
         if pic_url.contains(essen_category.as_str()) {
             essen.push_str(

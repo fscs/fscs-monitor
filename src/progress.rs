@@ -1,6 +1,6 @@
 use leptos::{*, leptos_dom::logging::console_log};
 use wasm_bindgen_futures::spawn_local;
-use std::time::Duration;
+use std::{string, time::Duration};
 use wasm_bindgen::prelude::*;
 #[component]
 pub fn App() -> impl IntoView {
@@ -74,6 +74,10 @@ pub async fn get_current_semester() -> JsValue{
     for i in 0..semesters.len() {
         if semesters[i].start <= now && semesters[i].end >= now {
             let string = semesters[i].name.clone() + "&&" + &semesters[i].start.to_string() + "&&" + &semesters[i].end.to_string();
+            return JsValue::from_str(&string);
+        }
+        if semesters[i].end <= now && semesters[i+1].start >= now {
+            let string = semesters[i].name.clone() + "&&" + &semesters[i].end.to_string() + "&&" + &semesters[i+1].start.to_string();
             return JsValue::from_str(&string);
         }
     }

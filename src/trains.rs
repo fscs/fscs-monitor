@@ -89,38 +89,13 @@ fn Station(id: String) -> impl IntoView {
         <div class="center" style="height:100%;  ">
             <h1>{name}</h1>
             <table class="center" style="padding-left:30px; padding-right:30px;">
-            {move || state.get().iter().map(move |x| {
+            {move || state.get().iter_mut().map(move |x| {
 
                  if x[0].is_empty() {
-                     view! {
-                         <tr class="hidden">
-                         </tr>
-                     }
-                 }else if x[1].len() >= 23{
-                     if x[3].clone() == "true" {
-                         return view! {
-                             <tr class="hidden">
-                             </tr>
-                         }
-                     }
-                     if x[4].clone() == "true" {
-                         return view! {
-                             <tr>
-                                 <th style="color:#ff0; text-align:left;">{x[0].clone()}</th>
-                                 <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#ff0; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
-                                 <th style="color:#ff0; text-align:right;">{x[2].clone()}</th>
-                             </tr>
-                         }
-                     }
-                     return view! {
-                         <tr>
-                             <th style="text-align:left;">{x[0].clone()}</th>
-                             <th style="text-align:left; line-height:1; max-width:25vw; overflow:hidden;"><div class="scroll" style="color:#00cc00; width:auto;"><span>{x[1].clone()}</span><span>{x[1].clone()}</span><span>{x[1].clone()}</span></div></th>
-                             <th style="text-align:right;">{x[2].clone()}</th>
-                         </tr>
-                        }
-                     }
-                 else {
+                 }
+                 if x[1].len() >= 20{
+                     x[1] = x[1].chars().take(19).collect::<String>();
+                }
                      if x[3].clone() == "true" {
                          return view! {
                              <tr class="hidden">
@@ -144,7 +119,6 @@ fn Station(id: String) -> impl IntoView {
 
                          </tr>
                      }
-                 }
              }).collect::<Vec<_>>()
             }
             </table>
