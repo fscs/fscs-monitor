@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <link data-trunk rel="copy-file" href="Bahn.ttf"/>
+<link data-trunk rel="copy-file" href="zeiten.json"/>
 <style>
 @import url('https://fonts.cdnfonts.com/css/5by7');
-.snowflakes_body{
-    height:100vh;
-    overflow:initial;
-    width:100vw;
-}
 @-moz-keyframes my-animation {
   from { -moz-transform: translateX(100%); }
   to { -moz-transform: translateX(-100%); }
@@ -25,6 +21,12 @@
   100% {
     transform: translate(-66.6666666%, 0);
   }
+}
+
+.snowflakes_body{
+    height:100vh;
+    overflow:initial;
+    width:100vw;
 }
 
 .scroll{
@@ -55,9 +57,6 @@ div {
 text-overflow: ellipsis;
 
 }
-.snowflakes_body div{
-    overflow:initial;
-}
 html, body {
     cursor:none;
     background-color: #000000;
@@ -71,16 +70,17 @@ html, body {
     width: 100%;;
 }
 h1{
-    font-size: 2.5vw;
+    font-size: 2.2vw;
     margin: 0;
     font-weight: normal;
 }
 tr{
-    font-size: 2.3vw;
+    font-size: 2.1vw;
     color: #00cc00;
 }
 th{
     max-width: fit-content;
+    font-size: 2.1vw;
     font-weight: normal;
 }
 td{
@@ -103,10 +103,14 @@ table#mensa{
     background-image:url('https://static.planetminecraft.com/files/image/minecraft/texture-pack/2020/428/13530476-cover_l.jpg');
     background-size:contain;
 }
+.snowflakes_body div{
+    overflow:initial;
+}
 
 </style>
 <html>
   <head></head>
   <body>
+
   </body>
 </html>

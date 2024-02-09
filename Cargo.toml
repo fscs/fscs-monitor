@@ -9,7 +9,7 @@ edition = "2021"
 leptos = { version = "0.5.2", features = ["csr"] }
 reqwest = "0.11.22"
 wasm-bindgen-futures = "0.4.38"
-wasm-bindgen = "0.2.50"
+wasm-bindgen = "0.2.91"
 serde_json = "1.0.108"
 chrono = "0.4.31"
 js-sys = "0.3.65"
@@ -17,6 +17,8 @@ html5ever = "0.26.0"
 tendril = "0.4.3"
 html_parser = "0.7.0"
 leptos_animation = "0.4.0"
+scraper = "0.18.1"
+regex = "1.10.2"
 
 
 
