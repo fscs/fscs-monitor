@@ -5,11 +5,10 @@ mod cal;
 mod mensa;
 mod trains;
 
-mod progress;
 mod legend;
+mod progress;
 
 fn main() {
-
     leptos::mount_to_body(move || {
         view! {
             <div style="height:100vh; width:85vw">

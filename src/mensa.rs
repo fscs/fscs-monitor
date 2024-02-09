@@ -19,11 +19,7 @@ fn Essen(id: String) -> impl IntoView {
         let list = list.await;
         set_state.set(
             list.split('\n')
-
-                .map(|x| 
-                     x.split(" && ").map(|x| x.to_string())
-                     .collect::<Vec<_>>())
-
+                .map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>())
                 .collect::<Vec<_>>(),
         );
     });
@@ -36,11 +32,7 @@ fn Essen(id: String) -> impl IntoView {
                 let list = list.await;
                 set_state.set(
                     list.split('\n')
-
-                        .map(|x| 
-                             x.split(" && ").map(|x| x.to_string())
-                             .collect::<Vec<_>>())
-
+                        .map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>())
                         .collect::<Vec<_>>(),
                 );
             });
@@ -77,7 +69,7 @@ fn Essen(id: String) -> impl IntoView {
                          if x[3].clone() == "true" {
                              return view! {
                                  <td style=style>
-                                     <div style="width:100%; 
+                                     <div style="width:100%;
                                                 height:auto; 
                                                 background:#3d3d3d;
                                                 color:white;">
@@ -89,7 +81,7 @@ fn Essen(id: String) -> impl IntoView {
                                                     text-overflow:ellipsis;
                                                     height:fit-content;
                                                     padding:10px">
-                                            {x[1].clone()} 
+                                            {x[1].clone()}
                                         </div>
                                         <div style="width:10%;
                                                     padding-top:10px;
@@ -129,21 +121,22 @@ pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
     let mut today = chrono::Local::now().format("%d.%m.%Y").to_string();
     let _time = chrono::Local::now().format("%H:%M").to_string();
 
-    let hour = chrono::Local::now().format("%H").to_string()
-        .parse::<i32>().map_err(|_e| {
-        JsValue::from_str("error")
-    })?;
-    let minute = chrono::Local::now().format("%M").to_string()
-        .parse::<i32>().map_err(|_e| {
-        JsValue::from_str("error")
-    })?;
+    let hour = chrono::Local::now()
+        .format("%H")
+        .to_string()
+        .parse::<i32>()
+        .map_err(|_e| JsValue::from_str("error"))?;
+    let minute = chrono::Local::now()
+        .format("%M")
+        .to_string()
+        .parse::<i32>()
+        .map_err(|_e| JsValue::from_str("error"))?;
 
-
-
-    let weekday = chrono::Local::now().format("%u").to_string()
-        .parse::<i32>().map_err(|_e| {
-        JsValue::from_str("error")
-    })?;
+    let weekday = chrono::Local::now()
+        .format("%u")
+        .to_string()
+        .parse::<i32>()
+        .map_err(|_e| JsValue::from_str("error"))?;
 
     if weekday >= 5 {
         //set day to monday
@@ -151,15 +144,13 @@ pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
             .format("%u")
             .to_string()
             .parse::<i64>()
-            .map_err(|_e| {
-                JsValue::from_str("error")
-            })?;
+            .map_err(|_e| JsValue::from_str("error"))?;
         today = chrono::Local::now()
             .checked_add_signed(chrono::Duration::days(diff_to_next_monday))
             .unwrap()
             .format("%d.%m.%Y")
             .to_string();
-    } else if hour > 14 || (hour == 14 && minute > 30){
+    } else if hour > 14 || (hour == 14 && minute > 30) {
         //set day to tomorrow
         today = chrono::Local::now()
             .checked_add_signed(chrono::Duration::days(1))
@@ -195,7 +186,6 @@ pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
 
     for i in 0..essen.len() {
         if essen[i].contains(&id) {
-
             let url = essen[i].split("url(").collect::<Vec<_>>()[1]
                 .split(')')
                 .collect::<Vec<_>>()[0]
@@ -211,24 +201,20 @@ pub async fn get_menu(id: String) -> String {
     let mut day = chrono::Local::now().format("%Y-%m-%d").to_string();
     let _time = chrono::Local::now().format("%H:%M").to_string();
 
-    let hour = match chrono::Local::now().format("%H").to_string()
-        .parse:: <i32>() {
+    let hour = match chrono::Local::now().format("%H").to_string().parse::<i32>() {
         Ok(x) => x,
         Err(_e) => {
             return "mensa is closed".to_string();
         }
     };
-    let minute = match chrono::Local::now().format("%M").to_string()
-        .parse:: <i32>() {
+    let minute = match chrono::Local::now().format("%M").to_string().parse::<i32>() {
         Ok(x) => x,
         Err(_e) => {
             return "mensa is closed".to_string();
         }
     };
 
-
-    let weekday = match chrono::Local::now().format("%u").to_string()
-        .parse:: <i32>() {
+    let weekday = match chrono::Local::now().format("%u").to_string().parse::<i32>() {
         Ok(x) => x,
         Err(_e) => {
             return "mensa is closed".to_string();
@@ -256,14 +242,23 @@ pub async fn get_menu(id: String) -> String {
             .to_string();
     }
 
-    console_log(&format!("Test:  https://openmensa.org/api/v2/canteens/{}/days/{}/meals",id,day));
-    let text = match reqwest::Client::new().get(format!("https://openmensa.org/api/v2/canteens/{}/days/{}/meals",id,day)).send().await {
+    console_log(&format!(
+        "Test:  https://openmensa.org/api/v2/canteens/{}/days/{}/meals",
+        id, day
+    ));
+    let text = match reqwest::Client::new()
+        .get(format!(
+            "https://openmensa.org/api/v2/canteens/{}/days/{}/meals",
+            id, day
+        ))
+        .send()
+        .await
+    {
         Ok(x) => x,
         Err(_e) => {
             return "mensa is closed".to_string();
         }
     };
-
 
     if text.status().as_u16() != 200 {
         return "mensa is closed".to_string();
@@ -277,26 +272,22 @@ pub async fn get_menu(id: String) -> String {
     };
     console_log("memesss");
 
-    console_log(&format!("Test: :{}",&text).to_string());
+    console_log(&format!("Test: :{}", &text).to_string());
 
     let mut essen = String::new();
     for i in 0..text.matches("name").count() {
-        let essen_name = text.split("name\":")
-            .collect::<Vec<_>>()[i + 1]
+        let essen_name = text.split("name\":").collect::<Vec<_>>()[i + 1]
             .split(',')
             .collect::<Vec<_>>()[0]
             .replace('\"', "");
 
-        let essen_category = text.split("category\":")
-            .collect::<Vec<_>>()[i + 1]
+        let essen_category = text.split("category\":").collect::<Vec<_>>()[i + 1]
             .split(',')
             .collect::<Vec<_>>()[0]
             .replace('\"', "");
-        let is_vegan = text.split("notes\":").collect::<Vec<_>>()[i + 1]
-            .contains("vegan");
+        let is_vegan = text.split("notes\":").collect::<Vec<_>>()[i + 1].contains("vegan");
 
-        
-        console_log(&format!("Test: :{}",&essen_category).to_string());
+        console_log(&format!("Test: :{}", &essen_category).to_string());
 
         let pic_url = match get_food_pic(essen_category.clone()).await {
             Ok(x) => x.as_string(),
@@ -311,16 +302,16 @@ pub async fn get_menu(id: String) -> String {
                 return "mensa is closed".to_string();
             }
         };
-    
+
         console_log("test");
         console_log(&essen_category);
 
         if pic_url.contains(essen_category.as_str()) {
-            essen.push_str(
-                &format!("{} && {} && {} && {}\n"
-                         ,essen_category, essen_name, pic_url, is_vegan
-                         ));
-        }else{
+            essen.push_str(&format!(
+                "{} && {} && {} && {}\n",
+                essen_category, essen_name, pic_url, is_vegan
+            ));
+        } else {
             return "mensa is closed".to_string();
         }
     }
