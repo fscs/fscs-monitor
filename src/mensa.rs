@@ -1,40 +1,85 @@
+use anyhow::{anyhow, bail, Result};
+use chrono::prelude::*;
+use chrono::Days;
 use leptos::{leptos_dom::logging::console_log, *};
+use reqwest::Client;
 use std::time::Duration;
-use wasm_bindgen::prelude::*;
+
+#[derive(Clone, Debug)]
+struct Food {
+    name: String,
+    image_url: String,
+    vegan: bool,
+}
+
+#[derive(Clone, Debug)]
+enum Menu {
+    Closed,
+    Open(Vec<Food>),
+}
+
+#[derive(Clone, Debug)]
+enum ViewState {
+    Error,
+    Closed,
+    Open(Vec<Food>),
+}
+
+/// food, as returned by openmensa. previously, we parsed json using string.split. lets not do
+/// that
+#[derive(Debug, serde::Deserialize)]
+struct OpenMensaFood {
+    name: String,
+    category: String,
+    notes: Vec<String>,
+}
+
 #[component]
-pub fn App2() -> impl IntoView {
+pub fn MensaView() -> impl IntoView {
     view! {
-        <Essen id="348".to_string()/>
+        <Essen id=String::from("348")/>
     }
 }
 
 #[component]
 fn Essen(id: String) -> impl IntoView {
-    let (state, set_state) = create_signal(vec![vec![String::new()]]);
+    let (state, set_state) = create_signal(ViewState::Closed);
 
-    let id2 = id.clone();
+    let cloned_id = id.clone();
 
     spawn_local(async move {
-        let list = get_menu(id2.clone());
-        let list = list.await;
-        set_state.set(
-            list.split('\n')
-                .map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>())
-                .collect::<Vec<_>>(),
-        );
+        // urgh, this is so ugly
+        let menu_result = get_menu(&cloned_id).await;
+
+        console_log(format!("{:?}", menu_result).as_str());
+
+        let new_state = match menu_result {
+            Ok(ok) => match ok {
+                Menu::Closed => ViewState::Closed,
+                Menu::Open(x) => ViewState::Open(x),
+            },
+            Err(_) => ViewState::Error,
+        };
+
+        set_state.set(new_state)
     });
 
     set_interval(
         move || {
-            let id = id.clone();
+            let more_id_clone = id.clone();
             spawn_local(async move {
-                let list = get_menu(id);
-                let list = list.await;
-                set_state.set(
-                    list.split('\n')
-                        .map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>())
-                        .collect::<Vec<_>>(),
-                );
+                // urgh, this is(again) so ugly
+                let menu_result = get_menu(&more_id_clone).await;
+
+                let new_state = match menu_result {
+                    Ok(ok) => match ok {
+                        Menu::Closed => ViewState::Closed,
+                        Menu::Open(x) => ViewState::Open(x),
+                    },
+                    Err(_) => ViewState::Error,
+                };
+
+                set_state.set(new_state)
             });
         },
         Duration::from_secs(60 * 30),
@@ -43,278 +88,183 @@ fn Essen(id: String) -> impl IntoView {
     view! {
         <table class="center" id="mensa" >
             <tr>
-            {move || state.get().iter().map(move |x| {
-
-                if x[0] == "mensa is closed" {
-                    return view! {
+            {move || {
+                match state.get() {
+                    ViewState::Closed => view! {
                         <td class="error">
                             Mensa is closed
                         </td>
-                    };
+                    }.into_view(),
+                    ViewState::Error => view! {
+                        <td class="error">
+                            Error :/
+                        </td>
+                    }.into_view(),
+                    ViewState::Open(foodlist) => view! {
+                        <For
+                            each=move || foodlist.clone()
+                            key=|food| food.name.clone()
+                            children=move |food: Food| {
+                                let style = format!("background-image: url({});
+                                                    background-size: 110%;
+                                                    background-repeat: no-repeat;
+                                                    background-position: center;
+                                                    height: 100%;
+                                                    width: 100%;
+                                                    padding:0px",
+                                                    food.image_url.clone());
+
+                                if food.vegan {
+                                   view! {
+                                        <td style=style>
+                                            <div style="width:100%;
+                                                        height:auto;
+                                                        background:#3d3d3d;
+                                                        color:white;">
+                                                <div style="width:calc(90% - 20px);
+                                                            background-color:#000000;
+                                                            color:#ffffff;
+                                                            margin:0px;
+                                                            overflow:hidden;
+                                                            text-overflow:ellipsis;
+                                                            height:fit-content;
+                                                            padding:10px">
+                                                    {food.name.clone()}
+                                                </div>
+                                                <div style="width:10%;
+                                                            padding-top:10px;
+                                                            padding-bottom:10px;
+                                                            color:white;">
+                                                    "V"
+                                                </div>
+                                            </div>
+                                        </td>
+                                   }.into_view()
+                                } else {
+                                    view! {
+                                        <td style=style>
+                                            <p style="background-color:#000000;
+                                                        color:#ffffff;
+                                                        margin:0px;
+                                                        width:calc(100% - 20px);
+                                                        overflow:hidden;
+                                                        text-overflow:ellipsis;
+                                                        padding:10px;">
+                                                {food.name.clone()}
+                                            </p>
+                                        </td>
+                                    }.into_view()
+                                }
+                            }
+                            />
+                    }.into_view()
                 }
-                 if x[0].is_empty() {
-                     view! {
-                         <td class="hidden">
-                         </td>
-                     }
-                 }else{
-                     let style = format!("background-image: url({});
-                                         background-size: 110%;
-                                         background-repeat: no-repeat;
-                                         background-position: center;
-                                         height: 100%;
-                                         width: 100%;
-                                         padding:0px", 
-                                         x[2].clone());
-                         if x[3].clone() == "true" {
-                             return view! {
-                                 <td style=style>
-                                     <div style="width:100%;
-                                                height:auto; 
-                                                background:#3d3d3d;
-                                                color:white;">
-                                        <div style="width:calc(90% - 20px);
-                                                    background-color:#000000;
-                                                    color:#ffffff;
-                                                    margin:0px;
-                                                    overflow:hidden;
-                                                    text-overflow:ellipsis;
-                                                    height:fit-content;
-                                                    padding:10px">
-                                            {x[1].clone()}
-                                        </div>
-                                        <div style="width:10%;
-                                                    padding-top:10px;
-                                                    padding-bottom:10px;
-                                                    color:white;">
-                                            "V"
-                                        </div>
-                                    </div>
-                                 </td>
-                             }
-                         }
-                         view! {
-                             <td style=style>
-
-                                 <p style="background-color:#000000;
-                                            color:#ffffff;
-                                            margin:0px;
-                                            width:calc(100% - 20px);
-                                            overflow:hidden;
-                                            text-overflow:ellipsis;
-                                            padding:10px;">
-
-                                    {x[1].clone()}
-                                 </p>
-                             </td>
-                         }
-                     }
-                 }).collect::<Vec<_>>()
-            }
+                     }}
             </tr>
         </table>
     }
 }
 
-#[wasm_bindgen]
-pub async fn get_food_pic(id: String) -> Result<JsValue, JsValue> {
-    let mut today = chrono::Local::now().format("%d.%m.%Y").to_string();
-    let _time = chrono::Local::now().format("%H:%M").to_string();
+pub async fn get_food_pic(
+    client: &Client,
+    category: &str,
+    date: DateTime<Local>,
+) -> Result<String> {
+    let url = String::from("https://www.stw-d.de/gastronomie/speiseplaene/essenausgabe-sued-duesseldorf/");
 
-    let hour = chrono::Local::now()
-        .format("%H")
-        .to_string()
-        .parse::<i32>()
-        .map_err(|_e| JsValue::from_str("error"))?;
-    let minute = chrono::Local::now()
-        .format("%M")
-        .to_string()
-        .parse::<i32>()
-        .map_err(|_e| JsValue::from_str("error"))?;
+    let text = client.get(url).send().await?.text().await?;
 
-    let weekday = chrono::Local::now()
-        .format("%u")
-        .to_string()
-        .parse::<i32>()
-        .map_err(|_e| JsValue::from_str("error"))?;
-
-    if weekday >= 5 {
-        //set day to monday
-        let diff_to_next_monday = 8 - chrono::Local::now()
-            .format("%u")
-            .to_string()
-            .parse::<i64>()
-            .map_err(|_e| JsValue::from_str("error"))?;
-        today = chrono::Local::now()
-            .checked_add_signed(chrono::Duration::days(diff_to_next_monday))
-            .unwrap()
-            .format("%d.%m.%Y")
-            .to_string();
-    } else if hour > 14 || (hour == 14 && minute > 30) {
-        //set day to tomorrow
-        today = chrono::Local::now()
-            .checked_add_signed(chrono::Duration::days(1))
-            .unwrap()
-            .format("%d.%m.%Y")
-            .to_string();
-    }
-
-    let url =
-        "https://www.stw-d.de/gastronomie/speiseplaene/essenausgabe-sued-duesseldorf/".to_string();
-    let text = match reqwest::get(url).await {
-        Ok(x) => x.text().await,
-        Err(_e) => {
-            return Ok(JsValue::from_str("error"));
-        }
-    };
-    let text = match text {
-        Ok(x) => x,
-        Err(_e) => {
-            return Ok(JsValue::from_str("error"));
-        }
-    };
-    let day = format!("data-date='{}'>", today);
+    let day = format!("data-date=\"{}\">", date.format("%d.%m.%Y"));
     let day_info = text.split(&day);
 
-    let essen = day_info.collect::<Vec<_>>()[1]
-        .split("</div>")
-        .collect::<Vec<_>>();
+    let essen_spliterator = if let Some(essen) = day_info.collect::<Vec<_>>().first() {
+        essen.split("</div>")
+    } else {
+        bail!("sadly, our shitty html parsing could not find the image of the food")
+    };
 
-    for i in 0..essen.len() {
-        console_log(essen[i]);
-    }
-
-    for i in 0..essen.len() {
-        if essen[i].contains(&id) {
-            let url = essen[i].split("url(").collect::<Vec<_>>()[1]
+    for entry in essen_spliterator {
+        if entry.contains(category) {
+            let url = entry.split("url(").collect::<Vec<_>>()[1]
                 .split(')')
                 .collect::<Vec<_>>()[0]
                 .replace('\"', "");
-            return Ok(JsValue::from_str(&url));
+            return Ok(url);
         }
     }
-    Ok(JsValue::from_str(&text))
+
+    bail!("no image found for category '{}'", category);
 }
 
-#[wasm_bindgen]
-pub async fn get_menu(id: String) -> String {
-    let mut day = chrono::Local::now().format("%Y-%m-%d").to_string();
-    let _time = chrono::Local::now().format("%H:%M").to_string();
+#[warn(clippy::pedantic)]
+async fn get_menu(id: &str) -> Result<Menu> {
+    let client = reqwest::Client::new();
 
-    let hour = match chrono::Local::now().format("%H").to_string().parse::<i32>() {
-        Ok(x) => x,
-        Err(_e) => {
-            return "mensa is closed".to_string();
-        }
-    };
-    let minute = match chrono::Local::now().format("%M").to_string().parse::<i32>() {
-        Ok(x) => x,
-        Err(_e) => {
-            return "mensa is closed".to_string();
-        }
+    let now = chrono::offset::Local::now();
+    let current_time = now.time();
+
+    // After 14 o'clock, show tomorrows food
+    let mut target_date = if current_time.hour() > 14 {
+        now.checked_add_days(Days::new(1))
+            .ok_or(anyhow!("failed to calculate date to fetch"))?
+    } else {
+        now
     };
 
-    let weekday = match chrono::Local::now().format("%u").to_string().parse::<i32>() {
-        Ok(x) => x,
-        Err(_e) => {
-            return "mensa is closed".to_string();
-        }
+    // If were to fetch a day of the weekend, fetch the next monday instead
+    let target_weekday = target_date.weekday();
+    target_date = match target_weekday {
+        Weekday::Sat | Weekday::Sun => target_date
+            .checked_add_days(Days::new(
+                (target_weekday.num_days_from_sunday() + 1).into(),
+            ))
+            .ok_or(anyhow!("failed to calculate date to fetch"))?,
+        _ => target_date,
     };
 
-    if weekday >= 5 {
-        //set day to monday
-        let diff_to_next_monday = 8 - chrono::Local::now()
-            .format("%u")
-            .to_string()
-            .parse::<i64>()
-            .unwrap();
-        day = chrono::Local::now()
-            .checked_add_signed(chrono::Duration::days(diff_to_next_monday))
-            .unwrap()
-            .format("%Y-%m-%d")
-            .to_string();
-    } else if hour > 14 || (hour == 14 && minute > 30) {
-        //set day to tomorrow
-        day = chrono::Local::now()
-            .checked_add_signed(chrono::Duration::days(1))
-            .unwrap()
-            .format("%Y-%m-%d")
-            .to_string();
+    let request_url = format!(
+        "https://openmensa.org/api/v2/canteens/{}/days/{}/meals",
+        id,
+        target_date.format("%Y-%m-%d")
+    );
+
+    console_log(format!("requesting food from {}", request_url).as_str());
+
+    let text_response = client.get(request_url).send().await?;
+
+    if !text_response.status().is_success() {
+        bail!("unable to fetch meal information")
+    }
+    
+    let text = text_response.text().await?;
+
+    let data: Vec<OpenMensaFood> = serde_json::from_str(text.as_str())?;
+
+    if let Some(first_entry) = data.first() {
+        // yup, open mensa is weird like that
+        if first_entry.name.contains("geschlossen") && first_entry.notes.is_empty() {
+            return Ok(Menu::Closed);
+        }
     }
 
-    console_log(&format!(
-        "Test:  https://openmensa.org/api/v2/canteens/{}/days/{}/meals",
-        id, day
-    ));
-    let text = match reqwest::Client::new()
-        .get(format!(
-            "https://openmensa.org/api/v2/canteens/{}/days/{}/meals",
-            id, day
-        ))
-        .send()
-        .await
-    {
-        Ok(x) => x,
-        Err(_e) => {
-            return "mensa is closed".to_string();
-        }
-    };
-
-    if text.status().as_u16() != 200 {
-        return "mensa is closed".to_string();
-    }
-
-    let text = match text.text().await {
-        Ok(x) => x,
-        Err(_e) => {
-            return "mensa is closed".to_string();
-        }
-    };
-    console_log("memesss");
-
-    console_log(&format!("Test: :{}", &text).to_string());
-
-    let mut essen = String::new();
-    for i in 0..text.matches("name").count() {
-        let essen_name = text.split("name\":").collect::<Vec<_>>()[i + 1]
-            .split(',')
-            .collect::<Vec<_>>()[0]
-            .replace('\"', "");
-
-        let essen_category = text.split("category\":").collect::<Vec<_>>()[i + 1]
-            .split(',')
-            .collect::<Vec<_>>()[0]
-            .replace('\"', "");
-        let is_vegan = text.split("notes\":").collect::<Vec<_>>()[i + 1].contains("vegan");
-
-        console_log(&format!("Test: :{}", &essen_category).to_string());
-
-        let pic_url = match get_food_pic(essen_category.clone()).await {
-            Ok(x) => x.as_string(),
-            Err(_e) => {
-                return "mensa is closed".to_string();
-            }
-        };
-
-        let pic_url = match pic_url {
-            Some(x) => x,
-            None => {
-                return "mensa is closed".to_string();
-            }
-        };
-
-        console_log("test");
-        console_log(&essen_category);
-
-        if pic_url.contains(essen_category.as_str()) {
-            essen.push_str(&format!(
-                "{} && {} && {} && {}\n",
-                essen_category, essen_name, pic_url, is_vegan
-            ));
+    let mut result = vec![];
+    for entry in data {
+        let name_truncated = if let Some(index) = entry.name.find(",") {
+            entry.name[..index].to_owned()
         } else {
-            return "mensa is closed".to_string();
-        }
+            entry.name
+        };
+
+        let vegan = entry.notes.iter().any(|note| note == "vegan");
+
+        let image_url = get_food_pic(&client, entry.category.as_str(), target_date).await?;
+
+        result.push(Food {
+            name: name_truncated,
+            image_url,
+            vegan,
+        })
     }
 
-    essen
+    Ok(Menu::Open(result))
 }
