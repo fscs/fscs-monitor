@@ -1,5 +1,5 @@
 use leptos::{leptos_dom::logging::console_log, *};
-use std::{string, time::Duration};
+use std::{time::Duration};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 #[component]

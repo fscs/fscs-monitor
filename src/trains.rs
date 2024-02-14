@@ -89,8 +89,7 @@ fn Station(id: String) -> impl IntoView {
             <table class="center" style="padding-left:30px; padding-right:30px;">
             {move || state.get().iter_mut().map(move |x| {
 
-                 if x[0].is_empty() {
-                 }
+                 x[0].is_empty();
                  if x[1].len() >= 20{
                      x[1] = x[1].chars().take(19).collect::<String>();
                 }
@@ -109,7 +108,7 @@ fn Station(id: String) -> impl IntoView {
                              </tr>
                          }
                      }
-                     return view! {
+                     view! {
                          <tr>
                              <th style="text-align:left;">{x[0].clone()}</th>
                              <th style="text-align:left; line-height:1; max-width:25vw">{x[1].clone()}</th>

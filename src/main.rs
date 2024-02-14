@@ -20,7 +20,7 @@ fn main() {
                     <trains::App/>
                 </div>
                 <div style="height:calc(20vh - 20px); width:100%;">
-                    <mensa::App2/>
+                    <mensa::MensaView/>
                 </div>
                 <div style="height:20px; width:100%;">
                     <progress::App/>
