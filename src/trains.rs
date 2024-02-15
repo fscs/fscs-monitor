@@ -191,7 +191,11 @@ pub async fn list(id: String) -> Result<String, JsValue> {
         let time = train.time;
 
         if !train.canceled && time >= 3 {
-            if id.clone() == "20018249" {
+            if id.clone() == "20018269" {
+                if time > 15 {
+                    vec.push(train);
+                }
+            } else if id.clone() == "20018249" {
                 if ((train.train_type == "S-Bahn") || (train.train_type == "Regionalzug"))
                     && (time > 15)
                 {

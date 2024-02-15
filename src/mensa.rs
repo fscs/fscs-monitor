@@ -3,6 +3,7 @@ use chrono::prelude::*;
 use chrono::Days;
 use leptos::{leptos_dom::logging::console_log, *};
 use reqwest::Client;
+use scraper::{Html, Selector};
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
@@ -30,7 +31,6 @@ enum ViewState {
 #[derive(Debug, serde::Deserialize)]
 struct OpenMensaFood {
     name: String,
-    category: String,
     notes: Vec<String>,
 }
 
@@ -165,38 +165,41 @@ fn Essen(id: String) -> impl IntoView {
     }
 }
 
-pub async fn get_food_pic(
-    client: &Client,
-    category: &str,
-    date: DateTime<Local>,
-) -> Result<String> {
-    let url = String::from("https://www.stw-d.de/gastronomie/speiseplaene/essenausgabe-sued-duesseldorf/");
+pub async fn get_food_pic(client: &Client, name: &str, date: DateTime<Local>) -> Result<String> {
+    let url = String::from(
+        "https://www.stw-d.de/gastronomie/speiseplaene/essenausgabe-sued-duesseldorf/",
+    );
 
     let text = client.get(url).send().await?.text().await?;
 
-    let day = format!("data-date=\"{}\">", date.format("%d.%m.%Y"));
-    let day_info = text.split(&day);
+    let html = Html::parse_document(text.as_str());
 
-    let essen_spliterator = if let Some(essen) = day_info.collect::<Vec<_>>().first() {
-        essen.split("</div>")
-    } else {
-        bail!("sadly, our shitty html parsing could not find the image of the food")
-    };
+    let date_formatted = format!("div[data-date=\"{}\"]", date.format("%d.%m.%Y"));
 
-    for entry in essen_spliterator {
-        if entry.contains(category) {
-            let url = entry.split("url(").collect::<Vec<_>>()[1]
-                .split(')')
-                .collect::<Vec<_>>()[0]
-                .replace('\"', "");
-            return Ok(url);
-        }
-    }
+    let selector =
+        Selector::parse(&date_formatted).map_err(|_| anyhow!("failed to parse selector"))?;
 
-    bail!("no image found for category '{}'", category);
+    let day = html
+        .select(&selector)
+        .next()
+        .ok_or(anyhow!("no day found"))?;
+
+    let essens_selector =
+        Selector::parse("div.counter").map_err(|_| anyhow!("failed to parse selector"))?;
+
+    let url = day
+        .select(&essens_selector)
+        .map(|x| x.inner_html())
+        .find(|x| x.contains(name))
+        .ok_or(anyhow!("Could not find image for date {}", date))?
+        .split("url(")
+        .collect::<Vec<_>>()[1]
+        .split(')')
+        .collect::<Vec<_>>()[0]
+        .replace('\"', "");
+    Ok(url)
 }
 
-#[warn(clippy::pedantic)]
 async fn get_menu(id: &str) -> Result<Menu> {
     let client = reqwest::Client::new();
 
@@ -235,7 +238,7 @@ async fn get_menu(id: &str) -> Result<Menu> {
     if !text_response.status().is_success() {
         bail!("unable to fetch meal information")
     }
-    
+
     let text = text_response.text().await?;
 
     let data: Vec<OpenMensaFood> = serde_json::from_str(text.as_str())?;
@@ -249,7 +252,8 @@ async fn get_menu(id: &str) -> Result<Menu> {
 
     let mut result = vec![];
     for entry in data {
-        let name_truncated = if let Some(index) = entry.name.find(",") {
+        console_log(&entry.name);
+        let name_truncated = if let Some(index) = entry.name.find(',') {
             entry.name[..index].to_owned()
         } else {
             entry.name
@@ -257,13 +261,13 @@ async fn get_menu(id: &str) -> Result<Menu> {
 
         let vegan = entry.notes.iter().any(|note| note == "vegan");
 
-        let image_url = get_food_pic(&client, entry.category.as_str(), target_date).await?;
+        let image_url = get_food_pic(&client, name_truncated.as_str(), target_date).await?;
 
         result.push(Food {
             name: name_truncated,
             image_url,
             vegan,
-        })
+        });
     }
 
     Ok(Menu::Open(result))
