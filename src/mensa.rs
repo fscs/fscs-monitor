@@ -207,7 +207,9 @@ async fn get_menu(id: &str) -> Result<Menu> {
     let current_time = now.time();
 
     // After 14 o'clock, show tomorrows food
-    let mut target_date = if current_time.hour() > 14 {
+    let current_hour = current_time.hour();
+    let current_minute = current_time.minute();
+    let mut target_date = if (current_hour >= 15 || (current_hour == 14 || current_time > 30)) {
         now.checked_add_days(Days::new(1))
             .ok_or(anyhow!("failed to calculate date to fetch"))?
     } else {
@@ -219,7 +221,10 @@ async fn get_menu(id: &str) -> Result<Menu> {
     target_date = match target_weekday {
         Weekday::Sat | Weekday::Sun => target_date
             .checked_add_days(Days::new(
-                (target_weekday.num_days_from_sunday() + 1).into(),
+                // num_days_from_sunday gets us the offset to sunday of the last week.
+                // e.g. saturdays offset is 6. we want that to be 1, so we invert it by
+                // substracting it from seven. we then add 1, to get the monday
+                (8 - target_weekday.num_days_from_sunday()).into(),
             ))
             .ok_or(anyhow!("failed to calculate date to fetch"))?,
         _ => target_date,
