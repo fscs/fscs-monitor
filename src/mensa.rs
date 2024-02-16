@@ -209,7 +209,7 @@ async fn get_menu(id: &str) -> Result<Menu> {
     // After 14 o'clock, show tomorrows food
     let current_hour = current_time.hour();
     let current_minute = current_time.minute();
-    let mut target_date = if (current_hour >= 15 || (current_hour == 14 || current_time > 30)) {
+    let mut target_date = if (current_hour >= 15 || (current_hour == 14 || current_minute > 30)) {
         now.checked_add_days(Days::new(1))
             .ok_or(anyhow!("failed to calculate date to fetch"))?
     } else {
