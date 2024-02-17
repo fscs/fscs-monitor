@@ -224,7 +224,7 @@ async fn get_menu(id: &str) -> Result<Menu> {
                 // num_days_from_sunday gets us the offset to sunday of the last week.
                 // e.g. saturdays offset is 6. we want that to be 1, so we invert it by
                 // substracting it from seven. we then add 1, to get the monday
-                (8 - target_weekday.num_days_from_sunday()).into(),
+                (8 - target_weekday.number_from_monday()).into(),
             ))
             .ok_or(anyhow!("failed to calculate date to fetch"))?,
         _ => target_date,
