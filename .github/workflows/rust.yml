@@ -41,8 +41,10 @@ jobs:
           rustup target add wasm32-unknown-unknown
       - name: Build the Rust WASM app and all of its assets
         run: trunk build --release
-      - name: push build data to git
-        uses: actions/upload-artifact@v2
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
-          name: fscs-monitor
-          path: dist
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: dist
+          CLEAN: true
