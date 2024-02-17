@@ -40,7 +40,7 @@ jobs:
         run: |
           rustup target add wasm32-unknown-unknown
       - name: Build the Rust WASM app and all of its assets
-        run: trunk build --release --public-url {{ site.github.repository_url }}
+        run: trunk build --release --public-url ${{ github.event.repository.name }}
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
