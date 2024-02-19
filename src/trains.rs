@@ -1,46 +1,44 @@
+use anyhow::Result;
 use leptos::*;
 use serde_json::Value;
-use std::time::Duration;
-use wasm_bindgen::prelude::*;
+use std::{fmt::Debug, time::Duration};
+
+#[derive(Clone, Debug, Default)]
+pub struct Train {
+    line: String,
+    direction: String,
+    time: i32,
+    train_type: String,
+    canceled: bool,
+    onplanned: bool,
+    delay: i32,
+}
+
 #[component]
 pub fn App() -> impl IntoView {
     view! {
         <div>
-            <Station id="20018296".to_string()/>
+            <Station id=String::from("20018296") limit=60/>
         </div>
         <div>
-            <Station id="20018804".to_string()/>
+            <Station id=String::from("20018804") limit=60/>
         </div>
         <div>
-            <Station id="20018269".to_string()/>
+            <Station id=String::from("20018269") limit=60/>
         </div>
         <div>
-            <Station id="20018249".to_string()/>
+            <Station id=String::from("20018249") limit=200/>
         </div>
     }
 }
 
 #[component]
-fn Station(id: String) -> impl IntoView {
-    let (state, set_state) = create_signal(vec![vec![String::new(); 10]; 10]);
+fn Station(id: String, limit: i32) -> impl IntoView {
+    let (state, set_state) = create_signal(vec![Train::default()]);
     let (name, set_name) = create_signal(String::new());
     let id2 = id.clone();
 
     spawn_local(async move {
-        let list = list(id2.clone());
-        let list = match list.await {
-            Ok(x) => x,
-            Err(_) => {
-                return;
-            }
-        };
-        list.split('\n').for_each(|_y| {
-            set_state.set(
-                list.split('\n')
-                    .map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>())
-                    .collect::<Vec<_>>(),
-            );
-        });
         let name = get_station_name(id2.clone());
         let name = match name.await {
             Ok(x) => x,
@@ -50,26 +48,19 @@ fn Station(id: String) -> impl IntoView {
         };
 
         set_name.set(name);
+        let station = match list(id2.clone(), limit).await {
+            Ok(x) => x,
+            Err(_) => {
+                return;
+            }
+        };
+        set_state.set(station);
     });
 
     set_interval(
         move || {
             let id = id.clone();
             spawn_local(async move {
-                let list = list(id.clone());
-                let list = match list.await {
-                    Ok(x) => x,
-                    Err(_) => {
-                        return;
-                    }
-                };
-                list.split('\n').for_each(|_y| {
-                    set_state.set(
-                        list.split('\n')
-                            .map(|x| x.split(" && ").map(|x| x.to_string()).collect::<Vec<_>>())
-                            .collect::<Vec<_>>(),
-                    );
-                });
                 let name = get_station_name(id.clone());
                 let name = match name.await {
                     Ok(x) => x,
@@ -78,6 +69,14 @@ fn Station(id: String) -> impl IntoView {
                     }
                 };
                 set_name.set(name);
+
+                let station = match list(id.clone(), limit).await {
+                    Ok(x) => x,
+                    Err(_) => {
+                        return;
+                    }
+                };
+                set_state.set(station);
             });
         },
         Duration::from_secs(60),
@@ -89,30 +88,29 @@ fn Station(id: String) -> impl IntoView {
             <table class="center" style="padding-left:30px; padding-right:30px;">
             {move || state.get().iter_mut().map(move |x| {
 
-                 x[0].is_empty();
-                 if x[1].len() >= 20{
-                     x[1] = x[1].chars().take(19).collect::<String>();
+                 if x.direction.len() >= 20{
+                     x.direction = x.direction.chars().take(19).collect::<String>();
                 }
-                     if x[3].clone() == "true" {
+                     if x.canceled {
                          return view! {
                              <tr class="hidden">
                              </tr>
                          }
                      }
-                     if x[4].clone() == "true" {
+                     if x.onplanned {
                          return view! {
                              <tr>
-                                 <th style="color:#ff0; text-align:left;">{x[0].clone()}</th>
-                                 <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw">{x[1].clone()}</th>
-                                 <th style="color:#ff0; text-align:right;">{x[2].clone()}</th>
+                                 <th style="color:#ff0; text-align:left;">{x.line.clone()}</th>
+                                 <th style="color:#ff0; text-align:left; line-height:1; max-width:25vw">{x.direction.clone()}</th>
+                                 <th style="color:#ff0; text-align:right;">"(+"{x.delay}") " {x.time}m</th>
                              </tr>
                          }
                      }
                      view! {
                          <tr>
-                             <th style="text-align:left;">{x[0].clone()}</th>
-                             <th style="text-align:left; line-height:1; max-width:25vw">{x[1].clone()}</th>
-                             <th style="text-align:right;">{x[2].clone()}</th>
+                             <th style="text-align:left;">{x.line.clone()}</th>
+                             <th style="text-align:left; line-height:1; max-width:25vw">{x.direction.clone()}</th>
+                             <th style="text-align:right;">{x.time}min</th>
 
                          </tr>
                      }
@@ -123,73 +121,23 @@ fn Station(id: String) -> impl IntoView {
     }
 }
 
-#[wasm_bindgen]
-pub async fn get_departures(id: String, limit: i32) -> Result<JsValue, JsValue> {
+pub async fn get_departures(id: String, limit: i32) -> Result<String> {
     let url = format!("https://app.vrr.de/vrrstd/XML_DM_REQUEST?outputFormat=JSON&commonMacro=dm&type_dm=any&name_dm={}&language=de&useRealtime=1&lsShowTrainsExplicit=1&mode=direct&typeInfo_dm=stopID&limit={}", id, limit);
 
-    let text = match reqwest::get(url).await {
-        Ok(x) => x.text().await,
-        Err(_) => {
-            return Err(JsValue::from_str("Error"));
-        }
-    };
+    let text = reqwest::get(&url).await?.text().await?;
 
-    let text = match text {
-        Ok(x) => x,
-        Err(_) => {
-            return Err(JsValue::from_str("Error"));
-        }
-    };
-    Ok(JsValue::from_str(&text))
+    Ok(text)
 }
 
-struct Train {
-    line: String,
-    direction: String,
-    time: i32,
-    train_type: String,
-    canceled: bool,
-    onplanned: bool,
-
-    delay: i32,
-}
-
-#[wasm_bindgen]
-pub async fn list(id: String) -> Result<String, JsValue> {
+pub async fn list(id: String, limit: i32) -> Result<Vec<Train>> {
     let mut vec = Vec::new();
 
-    let mut limit = 60;
-    if id.clone() == "20018249" {
-        limit = 200;
-    }
+    let departures = get_departures(id.clone(), limit).await?;
+    let json: Value = serde_json::from_str(&departures)?;
 
-    let departures = match get_departures(id.clone(), limit).await {
-        Ok(x) => x,
-        Err(_) => {
-            return Err(JsValue::from_str("Error"));
-        }
-    };
-
-    let departures = match departures.as_string() {
-        Some(x) => x,
-        None => {
-            return Err(JsValue::from_str("Error"));
-        }
-    };
-
-    let json: Value = match serde_json::from_str(&departures) {
-        Ok(x) => x,
-        Err(_) => {
-            return Err(JsValue::from_str("Error"));
-        }
-    };
-
-    let mut x = 0;
-    while x < limit {
-        let train = get_traindata(json.clone(), x as usize);
-
+    for count in 0..limit {
+        let train = get_traindata(&json, count as usize)?;
         let time = train.time;
-
         if !train.canceled && time >= 3 {
             if id.clone() == "20018269" {
                 if time > 15 {
@@ -205,61 +153,23 @@ pub async fn list(id: String) -> Result<String, JsValue> {
                 vec.push(train);
             }
         }
-        x += 1;
     }
-
-    vec.sort_by(|a, b| a.time.cmp(&b.time));
 
     vec.truncate(9);
 
-    Ok(vec
-        .iter()
-        .map(|x| {
-            if x.onplanned {
-                return format!(
-                    "{} && {} && (+{}) {}m && {} && {}",
-                    x.line, x.direction, x.delay, x.time, x.canceled, "true"
-                );
-            }
-            format!(
-                "{} && {} && {}min && {} && {}",
-                x.line, x.direction, x.time, x.canceled, "false"
-            )
-        })
-        .collect::<Vec<_>>()
-        .join("\n"))
+    Ok(vec)
 }
 
-#[wasm_bindgen]
-pub async fn get_station_name(id: String) -> Result<String, JsValue> {
-    let raw = match get_departures(id, 4).await {
-        Ok(x) => x,
-        Err(_) => {
-            return Err(JsValue::from_str("Error"));
-        }
-    };
-
-    let raw = match raw.as_string() {
-        Some(x) => x,
-        None => {
-            return Err(JsValue::from_str("Error"));
-        }
-    };
-
-    let json: Value = match serde_json::from_str(&raw) {
-        Ok(x) => x,
-        Err(_) => {
-            return Err(JsValue::from_str("Error"));
-        }
-    };
-
+pub async fn get_station_name(id: String) -> Result<String> {
+    let raw = get_departures(id, 4).await?;
+    let json: Value = serde_json::from_str(&raw)?;
     let name = json["departureList"][0]["stopName"]
         .to_string()
         .replace('\"', "");
     Ok(name)
 }
 
-fn get_traindata(json: Value, id: usize) -> Train {
+fn get_traindata(json: &Value, id: usize) -> Result<Train> {
     let mut path = "realDateTime";
     if json["departureList"][&id]["realDateTime"]
         .to_string()
@@ -280,50 +190,11 @@ fn get_traindata(json: Value, id: usize) -> Train {
         .to_string()
         .replace('\"', "");
 
-    let est_day_train = match est_day_train.parse::<i32>() {
-        Ok(x) => x,
-        Err(_) => {
-            return Train {
-                line: String::new(),
-                direction: String::new(),
-                time: 0,
-                train_type: String::new(),
-                canceled: false,
-                onplanned: false,
-                delay: 0,
-            };
-        }
-    };
+    let est_day_train = est_day_train.parse::<i32>()?;
 
-    let est_hour_train = match est_hour_train.parse::<i32>() {
-        Ok(x) => x,
-        Err(_) => {
-            return Train {
-                line: String::new(),
-                direction: String::new(),
-                time: 0,
-                train_type: String::new(),
-                canceled: false,
-                onplanned: false,
-                delay: 0,
-            };
-        }
-    };
+    let est_hour_train = est_hour_train.parse::<i32>()?;
 
-    let est_minute_train = match est_minute_train.parse::<i32>() {
-        Ok(x) => x,
-        Err(_) => {
-            return Train {
-                line: String::new(),
-                direction: String::new(),
-                time: 0,
-                train_type: String::new(),
-                canceled: false,
-                onplanned: false,
-                delay: 0,
-            };
-        }
-    };
+    let est_minute_train = est_minute_train.parse::<i32>()?;
 
     let day_train = json["departureList"][&id][path]["day"]
         .to_string()
@@ -340,128 +211,48 @@ fn get_traindata(json: Value, id: usize) -> Train {
         .replace('\"', "");
     let minute_now = chrono::Local::now().format("%M").to_string();
 
-    let hour_train = match hour_train.parse::<i32>() {
-        Ok(x) => x,
-        Err(_) => {
-            return Train {
-                line: String::new(),
-                direction: String::new(),
-                time: 0,
-                train_type: String::new(),
-                canceled: false,
-                onplanned: false,
-                delay: 0,
-            };
-        }
-    };
+    let hour_train = hour_train.parse::<i32>()?;
 
-    let hour_now = match hour_now.parse::<i32>() {
-        Ok(x) => x,
-        Err(_) => {
-            return Train {
-                line: String::new(),
-                direction: String::new(),
-                time: 0,
-                train_type: String::new(),
-                canceled: false,
-                onplanned: false,
-                delay: 0,
-            };
-        }
-    };
+    let hour_now = hour_now.parse::<i32>()?;
 
-    let minute_train = match minute_train.parse::<i32>() {
-        Ok(x) => x,
-        Err(_) => {
-            return Train {
-                line: String::new(),
-                direction: String::new(),
-                time: 0,
-                train_type: String::new(),
-                canceled: false,
-                onplanned: false,
-                delay: 0,
-            };
-        }
-    };
+    let minute_train = minute_train.parse::<i32>()?;
 
-    let minute_now = match minute_now.parse::<i32>() {
-        Ok(x) => x,
-        Err(_) => {
-            return Train {
-                line: String::new(),
-                direction: String::new(),
-                time: 0,
-                train_type: String::new(),
-                canceled: false,
-                onplanned: false,
-                delay: 0,
-            };
-        }
-    };
+    let minute_now = minute_now.parse::<i32>()?;
 
-    let day_train = match day_train.parse::<i32>() {
-        Ok(x) => x,
-        Err(_) => {
-            return Train {
-                line: String::new(),
-                direction: String::new(),
-                time: 0,
-                train_type: String::new(),
-                canceled: false,
-                onplanned: false,
-                delay: 0,
-            };
-        }
-    };
+    let day_train = day_train.parse::<i32>()?;
 
-    let day_now = match day_now.parse::<i32>() {
-        Ok(x) => x,
-        Err(_) => {
-            return Train {
-                line: String::new(),
-                direction: String::new(),
-                time: 0,
-                train_type: String::new(),
-                canceled: false,
-                onplanned: false,
-                delay: 0,
-            };
-        }
-    };
+    let day_now = day_now.parse::<i32>()?;
 
-    let mut _real_times = String::new();
+    let mut _real_times = 0;
     let day_off = day_train - day_now;
     let hour_off = hour_train - hour_now;
     let minute_off = minute_train - minute_now;
-    let diff;
     if day_off == 1 {
-        diff = 1440 - (hour_now * 60 + minute_now) + (hour_train * 60 + minute_train);
+        _real_times = 1440 - (hour_now * 60 + minute_now) + (hour_train * 60 + minute_train);
     } else {
-        diff = hour_off * 60 + minute_off;
+        _real_times = hour_off * 60 + minute_off;
     }
-    _real_times = diff.to_string();
 
-    let mut _est_times = String::new();
+    let mut _est_times = 0;
     let day_off = est_day_train - day_now;
     let hour_off = est_hour_train - hour_now;
     let minute_off = est_minute_train - minute_now;
-    let diff;
+    let mut _diff = 0;
     if day_off == 1 {
-        diff = 1440 - (hour_now * 60 + minute_now) + (hour_train * 60 + minute_train);
+        _diff = 1440 - (hour_now * 60 + minute_now) + (hour_train * 60 + minute_train);
     } else {
-        diff = hour_off * 60 + minute_off;
+        _diff = hour_off * 60 + minute_off;
     }
-    _est_times = diff.to_string();
+    _est_times = _diff;
 
     let mut _onplanned = false;
-    if (_real_times.parse::<i32>().unwrap() - _est_times.parse::<i32>().unwrap()) > 5 {
+    if (_real_times - _est_times) > 5 {
         _onplanned = true;
     }
 
-    let _delay = _real_times.parse::<i32>().unwrap() - _est_times.parse::<i32>().unwrap();
+    let _delay = _real_times - _est_times;
 
-    Train {
+    Ok(Train {
         line: json["departureList"][&id]["servingLine"]["number"]
             .to_string()
             .replace('\"', "")
@@ -470,7 +261,7 @@ fn get_traindata(json: Value, id: usize) -> Train {
             .to_string()
             .replace('\"', "")
             + " ",
-        time: _real_times.parse::<i32>().unwrap(),
+        time: _real_times,
         delay: _delay,
 
         train_type: json["departureList"][&id]["servingLine"]["name"]
@@ -480,5 +271,5 @@ fn get_traindata(json: Value, id: usize) -> Train {
             .to_string()
             .contains("TRIP_CANCELLED"),
         onplanned: _onplanned,
-    }
+    })
 }
