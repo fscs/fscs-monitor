@@ -12,11 +12,11 @@ fn main() {
     leptos::mount_to_body(move || {
         view! {
             <div style="height:100vh; width:85vw">
+                // Main pane
                 <div style="height:5vh; width:100%">
                     <Notification_Bar/>
                 </div>
                 <div style="height:75vh; width:100%;">
-
                     <trains::App/>
                 </div>
                 <div style="height:calc(20vh - 20px); width:100%;">
@@ -26,6 +26,7 @@ fn main() {
                     <progress::App/>
                 </div>
             </div>
+            // Right pane
             <div style="height:100vh; width: calc(15vw - 3px); border-left:2px solid">
                 <div style="height:80vh; width:100%">
                     <cal::App/>

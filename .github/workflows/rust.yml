@@ -1,4 +1,5 @@
 name: CD - Build fscs-monitor
+
 permissions:
   contents: read
   pages: write
@@ -39,6 +40,7 @@ jobs:
           rustup target add wasm32-unknown-unknown
       - name: Build the Rust WASM app and all of its assets
         run: trunk build --release --public-url ${{ github.event.repository.name }}
+
       - name: Upload a Build Artifact
         uses: actions/upload-pages-artifact@v1
         with:
