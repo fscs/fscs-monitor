@@ -2,11 +2,36 @@ use anyhow::Result;
 use leptos::*;
 use serde_json::Value;
 use std::{fmt::Debug, time::Duration};
+
+impl Train {
+    pub fn new() -> Self {
+        Self {
+            line: "".to_string(),
+            direction: "".to_string(),
+            time: 0,
+            train_type: "".to_string(),
+            canceled: false,
+            onplanned: false,
+            delay: 0,
+        }
+    }
+}
+#[derive(Clone, Debug)]
+pub struct Train {
+    line: String,
+    direction: String,
+    time: i32,
+    train_type: String,
+    canceled: bool,
+    onplanned: bool,
+    delay: i32,
+}
+
 #[component]
 pub fn App() -> impl IntoView {
     view! {
         <div>
-            <Station id=String::fmt("20018296") limit=60/>
+            <Station id=String::from("20018296") limit=60/>
         </div>
         <div>
             <Station id=String::from("20018804") limit=60/>
@@ -22,15 +47,7 @@ pub fn App() -> impl IntoView {
 
 #[component]
 fn Station(id: String, limit: i32) -> impl IntoView {
-    let (state, set_state) = create_signal(vec![Train {
-        line: "".to_string(),
-        direction: "".to_string(),
-        time: 0,
-        train_type: "".to_string(),
-        canceled: false,
-        onplanned: false,
-        delay: 0,
-    }]);
+    let (state, set_state) = create_signal(vec![Train::new()]);
     let (name, set_name) = create_signal(String::new());
     let id2 = id.clone();
 
@@ -44,7 +61,7 @@ fn Station(id: String, limit: i32) -> impl IntoView {
         };
 
         set_name.set(name);
-        let station = match list(id2.clone(), limit.clone()).await {
+        let station = match list(id2.clone(), limit).await {
             Ok(x) => x,
             Err(_) => {
                 return;
@@ -66,7 +83,7 @@ fn Station(id: String, limit: i32) -> impl IntoView {
                 };
                 set_name.set(name);
 
-                let station = match list(id.clone(), limit.clone()).await {
+                let station = match list(id.clone(), limit).await {
                     Ok(x) => x,
                     Err(_) => {
                         return;
@@ -123,17 +140,6 @@ pub async fn get_departures(id: String, limit: i32) -> Result<String> {
     let text = reqwest::get(&url).await?.text().await?;
 
     Ok(text)
-}
-
-#[derive(Clone, Debug)]
-pub struct Train {
-    line: String,
-    direction: String,
-    time: i32,
-    train_type: String,
-    canceled: bool,
-    onplanned: bool,
-    delay: i32,
 }
 
 pub async fn list(id: String, limit: i32) -> Result<Vec<Train>> {
