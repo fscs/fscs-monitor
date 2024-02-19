@@ -1,27 +1,27 @@
 use anyhow::Result;
 use leptos::*;
 use serde_json::Value;
-use std::time::Duration;
+use std::{fmt::Debug, time::Duration};
 #[component]
 pub fn App() -> impl IntoView {
     view! {
         <div>
-            <Station id="20018296".to_string()/>
+            <Station id=String::fmt("20018296") limit=60/>
         </div>
         <div>
-            <Station id="20018804".to_string()/>
+            <Station id=String::from("20018804") limit=60/>
         </div>
         <div>
-            <Station id="20018269".to_string()/>
+            <Station id=String::from("20018269") limit=60/>
         </div>
         <div>
-            <Station id="20018249".to_string()/>
+            <Station id=String::from("20018249") limit=200/>
         </div>
     }
 }
 
 #[component]
-fn Station(id: String) -> impl IntoView {
+fn Station(id: String, limit: i32) -> impl IntoView {
     let (state, set_state) = create_signal(vec![Train {
         line: "".to_string(),
         direction: "".to_string(),
@@ -44,7 +44,7 @@ fn Station(id: String) -> impl IntoView {
         };
 
         set_name.set(name);
-        let station = match list(id2.clone()).await {
+        let station = match list(id2.clone(), limit.clone()).await {
             Ok(x) => x,
             Err(_) => {
                 return;
@@ -66,7 +66,7 @@ fn Station(id: String) -> impl IntoView {
                 };
                 set_name.set(name);
 
-                let station = match list(id.clone()).await {
+                let station = match list(id.clone(), limit.clone()).await {
                     Ok(x) => x,
                     Err(_) => {
                         return;
@@ -136,13 +136,8 @@ pub struct Train {
     delay: i32,
 }
 
-pub async fn list(id: String) -> Result<Vec<Train>> {
+pub async fn list(id: String, limit: i32) -> Result<Vec<Train>> {
     let mut vec = Vec::new();
-
-    let mut limit = 60;
-    if id.clone() == "20018249" {
-        limit = 200;
-    }
 
     let departures = get_departures(id.clone(), limit).await?;
     let json: Value = serde_json::from_str(&departures)?;
