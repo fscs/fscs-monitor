@@ -3,20 +3,7 @@ use leptos::*;
 use serde_json::Value;
 use std::{fmt::Debug, time::Duration};
 
-impl Train {
-    pub fn new() -> Self {
-        Self {
-            line: "".to_string(),
-            direction: "".to_string(),
-            time: 0,
-            train_type: "".to_string(),
-            canceled: false,
-            onplanned: false,
-            delay: 0,
-        }
-    }
-}
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Train {
     line: String,
     direction: String,
@@ -47,7 +34,7 @@ pub fn App() -> impl IntoView {
 
 #[component]
 fn Station(id: String, limit: i32) -> impl IntoView {
-    let (state, set_state) = create_signal(vec![Train::new()]);
+    let (state, set_state) = create_signal(vec![Train::default()]);
     let (name, set_name) = create_signal(String::new());
     let id2 = id.clone();
 
