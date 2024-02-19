@@ -51,5 +51,6 @@ jobs:
     needs: build
     steps:
     - name: Deploy GitHub Pages site
+      if: github.event_name != 'pull_request'
       id: deployment
       uses: actions/deploy-pages@v2
