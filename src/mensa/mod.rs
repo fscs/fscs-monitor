@@ -2,8 +2,6 @@ use anyhow::{anyhow, Result};
 use chrono::prelude::*;
 use chrono::Days;
 use leptos::{leptos_dom::logging::console_log, *};
-use reqwest::Client;
-use scraper::{Html, Selector};
 use std::time::Duration;
 
 mod stw_d_parser;
@@ -26,14 +24,6 @@ pub struct Food {
 enum Menu {
     Closed,
     Open(Vec<Food>),
-}
-
-/// food, as returned by openmensa. previously, we parsed json using string.split. lets not do
-/// that
-#[derive(Debug, serde::Deserialize)]
-struct OpenMensaFood {
-    name: String,
-    notes: Vec<String>,
 }
 
 #[component]
@@ -164,41 +154,6 @@ fn Essen(id: String) -> impl IntoView {
             </tr>
         </table>
     }
-}
-
-pub async fn get_food_pic(client: &Client, name: &str, date: DateTime<Local>) -> Result<String> {
-    let url = String::from(
-        "https://www.stw-d.de/gastronomie/speiseplaene/essenausgabe-sued-duesseldorf/",
-    );
-
-    let text = client.get(url).send().await?.text().await?;
-
-    let html = Html::parse_document(text.as_str());
-
-    let date_formatted = format!("div[data-date=\"{}\"]", date.format("%d.%m.%Y"));
-
-    let selector =
-        Selector::parse(&date_formatted).map_err(|_| anyhow!("failed to parse selector"))?;
-
-    let day = html
-        .select(&selector)
-        .next()
-        .ok_or(anyhow!("no day found"))?;
-
-    let essens_selector =
-        Selector::parse("div.counter").map_err(|_| anyhow!("failed to parse selector"))?;
-
-    let url = day
-        .select(&essens_selector)
-        .map(|x| x.inner_html())
-        .find(|x| x.contains(name))
-        .ok_or(anyhow!("Could not find image for date {}", date))?
-        .split("url(")
-        .collect::<Vec<_>>()[1]
-        .split(')')
-        .collect::<Vec<_>>()[0]
-        .replace('\"', "");
-    Ok(url)
 }
 
 async fn get_menu(_id: &str) -> Result<Menu> {
