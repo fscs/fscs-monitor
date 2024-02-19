@@ -35,7 +35,6 @@ fn main() {
                     <legend::App />
                 </div>
             </div>
-
         }
     })
 }

@@ -1,4 +1,4 @@
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
 use chrono::prelude::*;
 use chrono::Days;
 use leptos::{leptos_dom::logging::console_log, *};
@@ -6,8 +6,17 @@ use reqwest::Client;
 use scraper::{Html, Selector};
 use std::time::Duration;
 
+mod stw_d_parser;
+
 #[derive(Clone, Debug)]
-struct Food {
+enum ViewState {
+    Error,
+    Closed,
+    Open(Vec<Food>),
+}
+
+#[derive(Clone, Debug)]
+pub struct Food {
     name: String,
     image_url: String,
     vegan: bool,
@@ -15,13 +24,6 @@ struct Food {
 
 #[derive(Clone, Debug)]
 enum Menu {
-    Closed,
-    Open(Vec<Food>),
-}
-
-#[derive(Clone, Debug)]
-enum ViewState {
-    Error,
     Closed,
     Open(Vec<Food>),
 }
@@ -199,7 +201,7 @@ pub async fn get_food_pic(client: &Client, name: &str, date: DateTime<Local>) ->
     Ok(url)
 }
 
-async fn get_menu(id: &str) -> Result<Menu> {
+async fn get_menu(_id: &str) -> Result<Menu> {
     let client = reqwest::Client::new();
 
     let now = chrono::offset::Local::now();
@@ -228,51 +230,5 @@ async fn get_menu(id: &str) -> Result<Menu> {
             .ok_or(anyhow!("failed to calculate date to fetch"))?,
         _ => target_date,
     };
-
-    let request_url = format!(
-        "https://openmensa.org/api/v2/canteens/{}/days/{}/meals",
-        id,
-        target_date.format("%Y-%m-%d")
-    );
-
-    console_log(format!("requesting food from {}", request_url).as_str());
-
-    let text_response = client.get(request_url).send().await?;
-
-    if !text_response.status().is_success() {
-        bail!("unable to fetch meal information")
-    }
-
-    let text = text_response.text().await?;
-
-    let data: Vec<OpenMensaFood> = serde_json::from_str(text.as_str())?;
-
-    if let Some(first_entry) = data.first() {
-        // yup, open mensa is weird like that
-        if first_entry.name.contains("geschlossen") && first_entry.notes.is_empty() {
-            return Ok(Menu::Closed);
-        }
-    }
-
-    let mut result = vec![];
-    for entry in data {
-        console_log(&entry.name);
-        let name_truncated = if let Some(index) = entry.name.find(',') {
-            entry.name[..index].to_owned()
-        } else {
-            entry.name
-        };
-
-        let vegan = entry.notes.iter().any(|note| note == "vegan");
-
-        let image_url = get_food_pic(&client, name_truncated.as_str(), target_date).await?;
-
-        result.push(Food {
-            name: name_truncated,
-            image_url,
-            vegan,
-        });
-    }
-
-    Ok(Menu::Open(result))
+    stw_d_parser::get_menu_data(&client, target_date).await
 }
