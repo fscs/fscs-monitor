@@ -1,6 +1,6 @@
+use anyhow::Result;
 use leptos::{leptos_dom::logging::console_log, *};
-use std::{time::Duration};
-use wasm_bindgen::prelude::*;
+use std::time::Duration;
 use wasm_bindgen_futures::spawn_local;
 #[component]
 pub fn App() -> impl IntoView {
@@ -14,15 +14,14 @@ fn Progress() -> impl IntoView {
     let (progress, set_progress) = create_signal(0.0);
 
     spawn_local(async move {
-        let progress = get_progress().await;
-        console_log(&format!("progress: {}", progress));
+        let progress = get_progress().await.unwrap_or(0.0);
         set_progress.set(progress);
     });
 
     set_interval(
         move || {
             spawn_local(async move {
-                let progress = get_progress().await;
+                let progress = get_progress().await.unwrap_or(0.0);
                 set_progress.set(progress);
             });
         },
@@ -42,25 +41,19 @@ fn Progress() -> impl IntoView {
     }
 }
 
-#[wasm_bindgen]
-pub async fn get_progress() -> f64 {
-    let current_semester = get_current_semester().await.as_string().unwrap();
-
-    let parts: Vec<&str> = current_semester.split("&&").collect();
-    let _name = parts[0].to_string();
-    let _start = chrono::NaiveDate::parse_from_str(parts[1], "%Y-%m-%d").unwrap();
-    let _end = chrono::NaiveDate::parse_from_str(parts[2], "%Y-%m-%d").unwrap();
+pub async fn get_progress() -> Result<f64> {
+    let current_semester = get_current_semester().await?;
 
     let now = chrono::Local::now().naive_local().date();
 
-    let days = (_end - _start).num_days();
-    let days_passed = (now - _start).num_days();
+    let days = (current_semester.end - current_semester.start).num_days();
+    let days_passed = (now - current_semester.start).num_days();
 
     if days > 0 {
-        return days_passed as f64 / days as f64;
+        return Ok(days_passed as f64 / days as f64);
     }
 
-    0.0
+    Ok(0.0)
 }
 
 pub struct Semester {
@@ -69,31 +62,28 @@ pub struct Semester {
     pub name: String,
 }
 
-pub async fn get_current_semester() -> JsValue {
+pub async fn get_current_semester() -> Result<Semester> {
     let semesters = get_list_of_semesters().await;
 
     let now = chrono::Local::now().naive_local().date();
 
     for i in 0..semesters.len() {
         if semesters[i].start <= now && semesters[i].end >= now {
-            let string = semesters[i].name.clone()
-                + "&&"
-                + &semesters[i].start.to_string()
-                + "&&"
-                + &semesters[i].end.to_string();
-            return JsValue::from_str(&string);
+            return Ok(Semester {
+                start: semesters[i].start,
+                end: semesters[i].end,
+                name: semesters[i].name.clone(),
+            });
         }
         if semesters[i].end <= now && semesters[i + 1].start >= now {
-            let string = semesters[i].name.clone()
-                + "&&"
-                + &semesters[i].end.to_string()
-                + "&&"
-                + &semesters[i + 1].start.to_string();
-            return JsValue::from_str(&string);
+            return Ok(Semester {
+                start: semesters[i].end,
+                end: semesters[i + 1].start,
+                name: semesters[i].name.clone(),
+            });
         }
     }
-
-    JsValue::from_str("No semester found")
+    Err(anyhow::anyhow!("No semester found"))
 }
 
 pub async fn get_list_of_semesters() -> Vec<Semester> {
@@ -149,18 +139,6 @@ pub async fn get_list_of_semesters() -> Vec<Semester> {
         };
 
         semesters.push(semester);
-    }
-
-    let mut string = "".to_string();
-
-    for i in 0..semesters.len() {
-        string = string
-            + &semesters[i].name.to_string()
-            + "&&"
-            + &semesters[i].start.to_string()
-            + "&&"
-            + &semesters[i].end.to_string()
-            + "\n";
     }
 
     semesters
