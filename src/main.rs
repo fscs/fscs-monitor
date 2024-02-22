@@ -1,12 +1,10 @@
 use leptos::*;
 use std::time::Duration;
 
-mod cal;
+mod calendar;
+mod legend;
 mod mensa;
 mod trains;
-
-mod legend;
-mod progress;
 
 fn main() {
     leptos::mount_to_body(move || {
@@ -23,13 +21,13 @@ fn main() {
                     <mensa::MensaView/>
                 </div>
                 <div style="height:20px; width:100%;">
-                    <progress::App/>
+                    <calendar::progress::App/>
                 </div>
             </div>
             // Right pane
             <div style="height:100vh; width: calc(15vw - 3px); border-left:2px solid">
                 <div style="height:80vh; width:100%">
-                    <cal::App/>
+                    <calendar::App/>
                 </div>
                 <div style="width:100%;background-color:dark-grey; border-top:2px solid">
                     <legend::App />
