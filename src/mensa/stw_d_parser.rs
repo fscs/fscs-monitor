@@ -5,15 +5,17 @@ use leptos::leptos_dom::logging::console_log;
 use reqwest::Client;
 use scraper::{Html, Selector};
 
-pub async fn get_menu_data(client: &Client, date: DateTime<Local>) -> Result<Menu> {
-    let url = String::from(
-        "https://www.stw-d.de/gastronomie/speiseplaene/essenausgabe-sued-duesseldorf/",
-    );
+pub async fn get_menu_data(id: &str, client: &Client, date: DateTime<Local>) -> Result<Menu> {
+    let url = format!("https://www.stw-d.de/gastronomie/speiseplaene/{}", id);
 
     let text = client.get(url).send().await?.text().await?;
 
     let html = Html::parse_document(text.as_str());
 
+    Ok(get_food_from_html(html, date)?)
+}
+
+fn get_food_from_html(html: Html, date: DateTime<Local>) -> Result<Menu> {
     let date_formatted = format!("div[data-date=\"{}\"]", date.format("%d.%m.%Y"));
 
     let selector =
@@ -82,4 +84,16 @@ pub async fn get_menu_data(client: &Client, date: DateTime<Local>) -> Result<Men
     }
 
     Ok(Menu::Open(food_vec))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[tokio::test]
+    async fn test_get_menu_data_with_date() {
+        let client = Client::new();
+        let date = chrono::Local::now();
+        let menu = get_menu_data("essenausgabe-sued-duesseldorf", &client, date).await;
+        assert!(menu.is_ok());
+    }
 }

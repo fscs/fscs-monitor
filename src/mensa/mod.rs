@@ -29,7 +29,7 @@ enum Menu {
 #[component]
 pub fn MensaView() -> impl IntoView {
     view! {
-        <Essen id=String::from("348")/>
+        <Essen id=String::from("essenausgabe-sued-duesseldorf")/>
     }
 }
 #[component]
@@ -156,22 +156,24 @@ fn Essen(id: String) -> impl IntoView {
     }
 }
 
-async fn get_menu(_id: &str) -> Result<Menu> {
+async fn get_menu(id: &str) -> Result<Menu> {
     let client = reqwest::Client::new();
 
     let now = chrono::offset::Local::now();
-    let current_time = now.time();
+    stw_d_parser::get_menu_data(id, &client, get_target_day(now)).await
+}
 
+fn get_target_day(now: DateTime<Local>) -> DateTime<Local> {
+    let current_time = now.time();
     // After 14 o'clock, show tomorrows food
     let current_hour = current_time.hour();
     let current_minute = current_time.minute();
     let mut target_date = if (current_hour >= 15 || (current_hour == 14 && current_minute > 30)) {
         now.checked_add_days(Days::new(1))
-            .ok_or(anyhow!("failed to calculate date to fetch"))?
+            .expect("failed to calculate date to fetch")
     } else {
         now
     };
-
     // If were to fetch a day of the weekend, fetch the next monday instead
     let target_weekday = target_date.weekday();
     target_date = match target_weekday {
@@ -182,8 +184,47 @@ async fn get_menu(_id: &str) -> Result<Menu> {
                 // substracting it from seven. we then add 1, to get the monday
                 (8 - target_weekday.number_from_monday()).into(),
             ))
-            .ok_or(anyhow!("failed to calculate date to fetch"))?,
+            .expect("failed to calculate date to fetch"),
         _ => target_date,
     };
-    stw_d_parser::get_menu_data(&client, target_date).await
+    target_date
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[tokio::test]
+    async fn test_get_menu() {
+        let id = "essenausgabe-sued-duesseldorf";
+        let menu = get_menu(id).await;
+        assert!(menu.is_ok());
+    }
+    #[test]
+    fn test_get_target_day() {
+        let test_date = "2024-02-22T14:31:00+01:00";
+        let now = DateTime::parse_from_rfc3339(test_date).unwrap();
+        let target_day = get_target_day(now.into());
+        assert_eq!(target_day.date().day(), 23);
+    }
+    #[test]
+    fn test_get_target_day_with_weekend_skip_fr() {
+        let test_date = "2024-02-23T14:31:00+01:00";
+        let now = DateTime::parse_from_rfc3339(test_date).unwrap();
+        let target_day = get_target_day(now.into());
+        assert_eq!(target_day.date().day(), 26);
+    }
+    #[test]
+    fn test_get_target_day_with_weekend_skip_sa() {
+        let test_date = "2024-02-24T14:31:00+01:00";
+        let now = DateTime::parse_from_rfc3339(test_date).unwrap();
+        let target_day = get_target_day(now.into());
+        assert_eq!(target_day.date().day(), 26);
+    }
+    #[test]
+    fn test_get_target_day_with_weekend_skip_so() {
+        let test_date = "2024-02-25T14:31:00+01:00";
+        let now = DateTime::parse_from_rfc3339(test_date).unwrap();
+        let target_day = get_target_day(now.into());
+        assert_eq!(target_day.date().day(), 26);
+    }
 }

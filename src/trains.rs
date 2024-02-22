@@ -259,8 +259,7 @@ fn get_traindata(json: &Value, id: usize) -> Result<Train> {
             .replace(" (RRX)", ""),
         direction: json["departureList"][&id]["servingLine"]["direction"]
             .to_string()
-            .replace('\"', "")
-            + " ",
+            .replace('\"', ""),
         time: _real_times,
         delay: _delay,
 
@@ -272,4 +271,242 @@ fn get_traindata(json: &Value, id: usize) -> Result<Train> {
             .contains("TRIP_CANCELLED"),
         onplanned: _onplanned,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::*;
+    #[test]
+    fn test_traindata_now() {
+        let day = chrono::Local::now().format("%d").to_string();
+        let hour = chrono::Local::now().format("%H").to_string();
+        let minute = chrono::Local::now().format("%M").to_string();
+        let json = json!(
+        {
+            "departureList": [
+                {
+                    "dateTime": {
+                        "day": day,
+                        "hour": hour,
+                        "minute": minute
+                    },
+                    "realDateTime": {
+                        "day": day,
+                        "hour": hour,
+                        "minute": minute
+                    },
+                    "servingLine": {
+                        "number": "U79",
+                        "direction": "Duisburg Hbf",
+                        "name": "U-Bahn"
+                    },
+                    "realtimeTripStatus": "TRIP_CANCELLED"
+                }
+            ]
+        }
+        );
+        let train = get_traindata(&json, 0).unwrap();
+        assert_eq!(train.line, "U79");
+        assert_eq!(train.direction, "Duisburg Hbf");
+        assert_eq!(train.time, 0);
+        assert_eq!(train.train_type, "U-Bahn");
+        assert!(train.canceled);
+        assert!(!train.onplanned);
+        assert_eq!(train.delay, 0);
+    }
+    #[test]
+    fn test_traindata_5min() {
+        let day = chrono::Local::now()
+            .format("%d")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let hour = chrono::Local::now()
+            .format("%H")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let minute = chrono::Local::now()
+            .format("%M")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let json = json!(
+        {
+            "departureList": [
+                {
+                    "dateTime": {
+                        "day": day,
+                        "hour": hour,
+                        "minute": minute+5
+                    },
+                    "realDateTime": {
+                        "day": day,
+                        "hour": hour,
+                        "minute": minute+5
+                    },
+                    "servingLine": {
+                        "number": "U79",
+                        "direction": "Duisburg Hbf",
+                        "name": "U-Bahn"
+                    },
+                    "realtimeTripStatus": "TRIP_CANCELLED"
+                }
+            ]
+        }
+        );
+        let train = get_traindata(&json, 0).unwrap();
+        assert_eq!(train.line, "U79");
+        assert_eq!(train.direction, "Duisburg Hbf");
+        assert_eq!(train.time, 5);
+        assert_eq!(train.train_type, "U-Bahn");
+        assert!(train.canceled);
+        assert!(!train.onplanned);
+        assert_eq!(train.delay, 0);
+    }
+
+    #[test]
+    fn test_traindata_delay() {
+        let day = chrono::Local::now()
+            .format("%d")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let hour = chrono::Local::now()
+            .format("%H")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let minute = chrono::Local::now()
+            .format("%M")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let json = json!(
+        {
+            "departureList": [
+                {
+                    "dateTime": {
+                        "day": day,
+                        "hour": hour,
+                        "minute": minute
+                    },
+                    "realDateTime": {
+                        "day": day,
+                        "hour": hour,
+                        "minute": minute+5
+                    },
+                    "servingLine": {
+                        "number": "U79",
+                        "direction": "Duisburg Hbf",
+                        "name": "U-Bahn"
+                    },
+                    "realtimeTripStatus": "TRIP_CANCELLED"
+                }
+            ]
+        }
+        );
+        let train = get_traindata(&json, 0).unwrap();
+        assert_eq!(train.line, "U79");
+        assert_eq!(train.direction, "Duisburg Hbf");
+        assert_eq!(train.time, 5);
+        assert_eq!(train.train_type, "U-Bahn");
+        assert!(train.canceled);
+        assert!(!train.onplanned);
+        assert_eq!(train.delay, 5);
+    }
+
+    #[test]
+    fn test_traindata_no_realtime() {
+        let day = chrono::Local::now()
+            .format("%d")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let hour = chrono::Local::now()
+            .format("%H")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let minute = chrono::Local::now()
+            .format("%M")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let json = json!(
+        {
+            "departureList": [
+                {
+                    "dateTime": {
+                        "day": day,
+                        "hour": hour,
+                        "minute": minute
+                    },
+                    "servingLine": {
+                        "number": "U79",
+                        "direction": "Duisburg Hbf",
+                        "name": "U-Bahn"
+                    },
+                    "realtimeTripStatus": "TRIP_CANCELLED"
+                }
+            ]
+        }
+        );
+        let train = get_traindata(&json, 0).unwrap();
+        assert_eq!(train.line, "U79");
+        assert_eq!(train.direction, "Duisburg Hbf");
+        assert_eq!(train.time, 0);
+        assert_eq!(train.train_type, "U-Bahn");
+        assert!(train.canceled);
+        assert!(!train.onplanned);
+        assert_eq!(train.delay, 0);
+    }
+
+    #[test]
+    fn test_traindata_next_day() {
+        let day = chrono::Local::now()
+            .format("%d")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let hour = chrono::Local::now()
+            .format("%H")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let minute = chrono::Local::now()
+            .format("%M")
+            .to_string()
+            .parse::<i32>()
+            .unwrap();
+        let json = json!(
+        {
+            "departureList": [
+                {
+                    "dateTime": {
+                        "day": day+1,
+                        "hour": hour,
+                        "minute": minute
+                    },
+                    "servingLine": {
+                        "number": "U79",
+                        "direction": "Duisburg Hbf",
+                        "name": "U-Bahn"
+                    },
+                    "realtimeTripStatus": "TRIP_CANCELLED"
+                }
+            ]
+        }
+        );
+        let train = get_traindata(&json, 0).unwrap();
+        assert_eq!(train.line, "U79");
+        assert_eq!(train.direction, "Duisburg Hbf");
+        assert_eq!(train.time, 24 * 60);
+        assert_eq!(train.train_type, "U-Bahn");
+        assert!(train.canceled);
+        assert!(!train.onplanned);
+        assert_eq!(train.delay, 0);
+    }
 }

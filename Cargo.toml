@@ -17,6 +17,8 @@ scraper = "0.18.1"
 regex = "1.10.2"
 anyhow = "1.0.9"
 serde = { version = "1.0.196", features = ["derive"] }
+tokio = { version = "1.36.0", features = ["macros"] }
+icalendar = "0.16.0"
 
 [dependencies.web-sys]
 version = "0.3.4"
