@@ -204,27 +204,27 @@ mod tests {
         let test_date = "2024-02-22T14:31:00+01:00";
         let now = DateTime::parse_from_rfc3339(test_date).unwrap();
         let target_day = get_target_day(now.into());
-        assert_eq!(target_day.date().day(), 23);
+        assert_eq!(target_day.date_naive().day(), 23);
     }
     #[test]
     fn test_get_target_day_with_weekend_skip_fr() {
         let test_date = "2024-02-23T14:31:00+01:00";
         let now = DateTime::parse_from_rfc3339(test_date).unwrap();
         let target_day = get_target_day(now.into());
-        assert_eq!(target_day.date().day(), 26);
+        assert_eq!(target_day.date_naive().day(), 26);
     }
     #[test]
     fn test_get_target_day_with_weekend_skip_sa() {
         let test_date = "2024-02-24T14:31:00+01:00";
         let now = DateTime::parse_from_rfc3339(test_date).unwrap();
         let target_day = get_target_day(now.into());
-        assert_eq!(target_day.date().day(), 26);
+        assert_eq!(target_day.date_naive().day(), 26);
     }
     #[test]
     fn test_get_target_day_with_weekend_skip_so() {
         let test_date = "2024-02-25T14:31:00+01:00";
         let now = DateTime::parse_from_rfc3339(test_date).unwrap();
         let target_day = get_target_day(now.into());
-        assert_eq!(target_day.date().day(), 26);
+        assert_eq!(target_day.date_naive().day(), 26);
     }
 }
