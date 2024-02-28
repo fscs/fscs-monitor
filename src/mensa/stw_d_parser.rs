@@ -66,6 +66,12 @@ fn get_food_from_html(html: Html, date: DateTime<Local>) -> Result<Menu> {
             food_name = food_name.replace(" [V] ", "");
         }
 
+        food_name = food_name.replace(" [F] ", "");
+        food_name = food_name.replace(" [R] ", "");
+        food_name = food_name.replace(" [S] ", "");
+        food_name = food_name.replace(" [A] ", "");
+        food_name = food_name.replace(" [Z] ", "");
+
         let food_name_truncated = if let Some(index) = food_name.find('(') {
             food_name[..index].to_string()
         } else {

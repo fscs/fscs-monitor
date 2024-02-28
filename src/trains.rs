@@ -155,6 +155,7 @@ pub async fn list(id: String, limit: i32) -> Result<Vec<Train>> {
         }
     }
 
+    vec.sort_by(|a, b| a.time.cmp(&b.time));
     vec.truncate(9);
 
     Ok(vec)
