@@ -34,7 +34,7 @@ pub fn App() -> impl IntoView {
 
 #[component]
 fn Station(id: String, limit: i32) -> impl IntoView {
-    let (state, set_state) = create_signal(Some(vec![Train::default()]));
+    let (state, set_state) = create_signal(vec![Train::default()]);
     let (name, set_name) = create_signal(String::new());
     let id2 = id.clone();
 
@@ -48,11 +48,13 @@ fn Station(id: String, limit: i32) -> impl IntoView {
         };
 
         set_name.set(name);
-        let trains = match list(id2.clone(), limit).await {
-            Ok(x) => Some(x),
-            Err(_) => None,
+        let station = match list(id2.clone(), limit).await {
+            Ok(x) => x,
+            Err(_) => {
+                return;
+            }
         };
-        set_state.set(trains);
+        set_state.set(station);
     });
 
     set_interval(
@@ -68,11 +70,13 @@ fn Station(id: String, limit: i32) -> impl IntoView {
                 };
                 set_name.set(name);
 
-                let trains = match list(id.clone(), limit).await {
-                    Ok(x) => Some(x),
-                    Err(_) => None,
+                let station = match list(id.clone(), limit).await {
+                    Ok(x) => x,
+                    Err(_) => {
+                        return;
+                    }
                 };
-                set_state.set(trains);
+                set_state.set(station);
             });
         },
         Duration::from_secs(60),
@@ -82,7 +86,8 @@ fn Station(id: String, limit: i32) -> impl IntoView {
         <div class="center" style="height:100%;  ">
             <h1>{name}</h1>
             <table class="center" style="padding-left:30px; padding-right:30px;">
-            {move || state.get().unwrap_or(vec![]).iter_mut().map(move |x| {
+            {move || state.get().iter_mut().map(move |x| {
+
                  if x.direction.len() >= 20{
                      x.direction = x.direction.chars().take(19).collect::<String>();
                 }
