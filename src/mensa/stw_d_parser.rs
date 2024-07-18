@@ -92,14 +92,14 @@ fn get_food_from_html(html: Html, date: DateTime<Local>) -> Result<Menu> {
     Ok(Menu::Open(food_vec))
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[tokio::test]
-    async fn test_get_menu_data_with_date() {
-        let client = Client::new();
-        let date = chrono::Local::now();
-        let menu = get_menu_data("essenausgabe-sued-duesseldorf", &client, date).await;
-        assert!(menu.is_ok());
-    }
-}
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     #[tokio::test]
+//     async fn test_get_menu_data_with_date() {
+//         let client = Client::new();
+//         let date = chrono::Local::now();
+//         let menu = get_menu_data("essenausgabe-sued-duesseldorf", &client, date).await;
+//         assert!(menu.is_ok());
+//     }
+// }

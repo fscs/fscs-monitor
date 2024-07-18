@@ -1,5 +1,6 @@
 use anyhow::Result;
 use leptos::{leptos_dom::logging::console_log, *};
+use leptos_dom::logging::console_warn;
 use std::time::Duration;
 use wasm_bindgen_futures::spawn_local;
 #[component]
@@ -63,7 +64,12 @@ pub struct Semester {
 }
 
 pub async fn get_current_semester() -> Result<Semester> {
+    console_warn("sd");
     let semesters = get_list_of_semesters().await;
+
+    for i in 0..semesters.len() {
+        console_log(&semesters[i].name);
+    }
 
     let now = chrono::Local::now().naive_local().date();
 
@@ -106,7 +112,7 @@ pub async fn get_list_of_semesters() -> Vec<Semester> {
     console_log(&table.html());
 
     // use regex to get name of semester
-    let regex = regex::Regex::new(r"<p>([A-z]+)(?:&nbsp;)?<\/p>").unwrap();
+    let regex = regex::Regex::new(r"([A-z]+)(?:&nbsp;)?<\/td>").unwrap();
     let names: Vec<String> = regex
         .captures_iter(&table.html())
         .map(|x| x[1].to_string())

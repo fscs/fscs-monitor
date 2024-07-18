@@ -161,6 +161,10 @@ pub async fn get_events() -> Result<Vec<Event>> {
         vec.push(event);
     }
 
+    for event in vec.iter_mut() {
+        console_log(&event.title);
+    }
+
     Ok(vec)
 }
 
