@@ -2,6 +2,7 @@ use anyhow::Result;
 use chrono::DateTime;
 use icalendar::parser::Calendar;
 use leptos::leptos_dom::logging::console_log;
+use leptos::logging::log;
 use leptos::spawn_local;
 use leptos::{component, create_signal, set_interval, view, IntoView, SignalGet, SignalSet};
 use std::time::Duration;
@@ -135,17 +136,7 @@ fn get_next_occurrence_after_today(event: Event) -> Event {
     event
 }
 
-pub async fn get_events() -> Result<Vec<Event>> {
-    let current_semester = progress::get_current_semester().await?;
-
-    let timestamp = current_semester
-        .start
-        .and_hms_opt(0, 0, 0)
-        .unwrap()
-        .timestamp();
-
-    let url = format!("https://nextcloud.inphima.de/remote.php/dav/public-calendars/CAx5MEp7cGrQ6cEe?start={}&export=&componentType=VEVENT", timestamp);
-
+pub async fn get_events(url: String) -> Result<Vec<Event>> {
     let resp = reqwest::get(url).await.unwrap();
 
     let ical = icalendar::parser::unfold(&resp.text().await.unwrap());
@@ -171,8 +162,31 @@ pub async fn get_events() -> Result<Vec<Event>> {
 #[component]
 pub fn App() -> impl IntoView {
     let (events, set_events) = create_signal(vec![Event::default()]);
+    let (id, set_id) = create_signal(0);
     spawn_local(async move {
-        let events = match get_events().await {
+        let file = reqwest::get("http://localhost:8080/config.json")
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap();
+        let json: serde_json::Value = serde_json::from_str(&file).unwrap();
+        let stations = json["calendars"].as_array().unwrap();
+
+        let current_semester = progress::get_current_semester().await.unwrap();
+        let timestamp = current_semester
+            .start
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_utc()
+            .timestamp();
+
+        let url = stations[id.get()]["url"]
+            .to_string()
+            .replace("START", &timestamp.to_string().clone())
+            .replace("\"", "");
+
+        let events = match get_events(url).await {
             Ok(events) => events,
             Err(_) => {
                 vec![Event::default()]
@@ -185,7 +199,29 @@ pub fn App() -> impl IntoView {
     set_interval(
         move || {
             spawn_local(async move {
-                let events = match get_events().await {
+                let file = reqwest::get("http://localhost:8080/config.json")
+                    .await
+                    .unwrap()
+                    .text()
+                    .await
+                    .unwrap();
+                let json: serde_json::Value = serde_json::from_str(&file).unwrap();
+                let stations = json["calendars"].as_array().unwrap();
+
+                let current_semester = progress::get_current_semester().await.unwrap();
+                let timestamp = current_semester
+                    .start
+                    .and_hms_opt(0, 0, 0)
+                    .unwrap()
+                    .and_utc()
+                    .timestamp();
+
+                let url = stations[id.get()]["url"]
+                    .to_string()
+                    .replace("START", &timestamp.to_string().clone())
+                    .replace("\"", "");
+
+                let events = match get_events(url).await {
                     Ok(events) => events,
                     Err(_) => {
                         vec![Event::default()]
@@ -193,9 +229,14 @@ pub fn App() -> impl IntoView {
                 };
 
                 set_events.set(events);
+                if id.get() == stations.len() - 1 {
+                    set_id.set(0);
+                } else {
+                    set_id.set(id.get() + 1);
+                }
             });
         },
-        Duration::from_secs(60 * 30),
+        Duration::from_secs(10),
     );
 
     view! {

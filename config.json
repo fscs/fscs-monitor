@@ -1,0 +1,28 @@
+{
+    "stations": [
+        {
+            "id": "20018296",
+            "limit": 60
+        },
+        {
+            "id": "20018804",
+            "limit": 60
+
+        },
+        {
+            "id": "20018269",
+            "limit": 60
+
+        },
+        {
+            "id": "20018249",
+            "limit": 200
+
+        }
+    ],
+    "calendars": [
+        {
+            "url": "https://nextcloud.inphima.de/remote.php/dav/public-calendars/CAx5MEp7cGrQ6cEe?start=START&export=&componentType=VEVENT"
+        }
+    ]
+}

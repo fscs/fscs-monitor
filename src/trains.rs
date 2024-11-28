@@ -1,7 +1,8 @@
 use anyhow::Result;
 use leptos::*;
+use logging::log;
 use serde_json::Value;
-use std::{fmt::Debug, time::Duration};
+use std::{fmt::Debug, fs, time::Duration};
 
 #[derive(Clone, Debug, Default)]
 pub struct Train {
@@ -16,24 +17,35 @@ pub struct Train {
 
 #[component]
 pub fn App() -> impl IntoView {
+    log!("test");
+    let (stations, set_stations) = create_signal(vec![]);
+    spawn_local(async move {
+        let file = reqwest::get("http://localhost:8080/config.json")
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap();
+        let json: serde_json::Value = serde_json::from_str(&file).unwrap();
+        let stations = json["stations"].as_array().unwrap();
+        //convert to string array
+        set_stations.set(stations.to_vec());
+    });
+
     view! {
-        <div>
-            <Station id=String::from("20018296") limit=60/>
-        </div>
-        <div>
-            <Station id=String::from("20018804") limit=60/>
-        </div>
-        <div>
-            <Station id=String::from("20018269") limit=60/>
-        </div>
-        <div>
-            <Station id=String::from("20018249") limit=200/>
-        </div>
+        {move || stations.get().iter().map(move |x| {
+            view! {
+                <div>
+                    <Station id={x.clone()["id"].to_string()} limit={x.clone()["limit"].to_string().parse::<i32>().unwrap()}/>
+                </div>
+
+            }
+        }).collect::<Vec<_>>()}
     }
 }
-
 #[component]
 fn Station(id: String, limit: i32) -> impl IntoView {
+    log!("id: {}", id);
     let (state, set_state) = create_signal(vec![Train::default()]);
     let (name, set_name) = create_signal(String::new());
     let id2 = id.clone();
