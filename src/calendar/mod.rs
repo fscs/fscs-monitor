@@ -164,7 +164,7 @@ pub fn App() -> impl IntoView {
     let (events, set_events) = create_signal(vec![Event::default()]);
     let (id, set_id) = create_signal(0);
     spawn_local(async move {
-        let file = reqwest::get("http://localhost:8080/config.json")
+        let file = reqwest::get("https://fscs.github.io/fscs-monitor/config.json")
             .await
             .unwrap()
             .text()
@@ -199,7 +199,7 @@ pub fn App() -> impl IntoView {
     set_interval(
         move || {
             spawn_local(async move {
-                let file = reqwest::get("http://localhost:8080/config.json")
+                let file = reqwest::get("https://fscs.github.io/fscs-monitor/config.json")
                     .await
                     .unwrap()
                     .text()
