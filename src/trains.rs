@@ -20,7 +20,7 @@ pub fn App() -> impl IntoView {
     log!("test");
     let (stations, set_stations) = create_signal(vec![]);
     spawn_local(async move {
-        let file = reqwest::get("http://localhost:8080/config.json")
+        let file = reqwest::get("https://fscs.github.io/fscs-monitor/config.json")
             .await
             .unwrap()
             .text()
